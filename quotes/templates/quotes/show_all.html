@@ -1,0 +1,17 @@
+<!--
+File: show_all.html
+Created: Jan. 29
+Author: Theodore Harlan
+        hpt@bu.edu
+Description: quotes/show_all template
+-->
+
+{% extends "quotes/base.html" %}
+{% block content %}
+    <h4> {{quote1|linebreaksbr}}</h4>
+    <h4> {{quote2|linebreaksbr}}</h4>
+    <h4> {{quote3|linebreaksbr}}</h4>
+    <img src="{{image1}}" alt="Artwork of a Cat (src:x.com)" class="quote-image">
+    <img src="{{image2}}" alt="Artwork of a Dove (src:x.com)" class="quote-image">
+    <img src="{{image3}}" alt="Artwork of a Dog (src:x.com)"class="quote-image">
+{% endblock %}

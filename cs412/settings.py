@@ -1,3 +1,9 @@
+# File: settings.py
+# Created: Jan. 23
+# Author: Theodore Harlan
+#         hpt@bu.edu
+# Description: top level cs412 project settings
+
 """
 Django settings for cs412 project.
 
@@ -10,6 +16,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +32,7 @@ SECRET_KEY = "django-insecure-8gi=5tolfb6+l@8q$q0s_-b$9w=mq)tz1dh_cvg0@qsivlh6(2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["cs-webapps.bu.edu"]
+ALLOWED_HOSTS = ["cs-webapps.bu.edu", "127.0.0.1"]
 
 
 # Application definition
@@ -37,6 +44,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "quotes",
 ]
 
 MIDDLEWARE = [

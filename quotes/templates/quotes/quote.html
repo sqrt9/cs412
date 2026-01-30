@@ -1,0 +1,13 @@
+<!--
+File: quote.html
+Created: Jan. 29
+Author: Theodore Harlan
+        hpt@bu.edu
+Description: quotes/quote, quotes/ template
+-->
+
+{% extends "quotes/base.html" %}
+{% block content %}
+    <h4> {{random_quote|linebreaksbr}}</h4>
+    <img src="{{random_image_url}}" alt="Artwork from Twitter" class="quote-image">
+{% endblock %}
