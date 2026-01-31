@@ -8,5 +8,5 @@ Description: quotes/about template
 
 {% extends "quotes/base.html" %}
 {% block content %}
-    <h4> "{{about}}"</h4>
+    <h4> {{about|linebreaksbr}}</h4>
 {% endblock %}
