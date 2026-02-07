@@ -1,3 +1,9 @@
+# file urls.py
+# created feb 6
+# author hpt@bu.edu
+# description url exports for restaurant app
+
+
 from django.urls import path
 from . import views
 

@@ -1,3 +1,8 @@
+# file: views.py
+# author: theodore harlan hpt@bu.edu
+# created: feb 6
+# description: controller for the views of restaurant django 
+
 from django.http import HttpRequest
 from django.shortcuts import render
 import random
@@ -41,6 +46,8 @@ context={ "logo" : logo}
 
 
 def main(request : HttpRequest):
+    """Controller for the main and home pages.
+    Send context from the view page to the template renderer"""
     context = {
         "logo" : logo,
         "hours": hours,
@@ -50,6 +57,8 @@ def main(request : HttpRequest):
 
 
 def order(request : HttpRequest):
+    """Controller for the order page. Fill the context with the
+    menu and special items. Generate a special item to send to the renderer"""
     special = random.choice(list(specials.keys()))
     extras = ["Catchup", "Dogchup", "Aligatorchup"]
     context = {
@@ -64,6 +73,8 @@ def order(request : HttpRequest):
     
 
 def confirmation(request: HttpRequest):
+    """Controller for the confirmation page. Compute from the post
+    request the contities and the total"""
     context = {}
     if request.method == "POST":
         # 1. Store basic customer info
