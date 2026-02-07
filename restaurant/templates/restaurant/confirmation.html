@@ -1,0 +1,42 @@
+{% extends "restaurant/base.html" %}
+
+{% block content %}
+<div class="center-container" style="text-align: center; font-family: monospace;">
+    
+    <h1 style="margin-top: 2rem;">
+        <span style="color: #fff200;">Order</span> 
+        <span style="color: #ba91f2;">Confirmed!</span>
+    </h1>
+
+    <div class="left-container" style="display: inline-block; text-align: left; background: #222; padding: 20px; border: 2px solid #444; color: white;">
+        <h3 style="color: #fff200; border-bottom: 1px solid #444; padding-bottom: 5px;">Customer Details</h3>
+        <p><strong>Name:</strong> {{ name }}</p>
+        <p><strong>Email:</strong> {{ email }}</p>
+        <p><strong>Phone:</strong> {{ phone }}</p>
+
+        <h3 style="color: #ba91f2; border-bottom: 1px solid #444; padding-bottom: 5px; margin-top: 20px;">Receipt</h3>
+        <ul style="list-style: none; padding: 0;">
+            {% for item in ordered_items %}
+                <li style="margin-bottom: 10px;">
+                    {{ item.qty }}x {{ item.name }} ... ${{ item.total }}
+                    {% if item.name == "Inedible Cowboy Hat" and hat_extras %}
+                        <div style="font-size: 0.8rem; color: #888; margin-left: 15px;">
+                            + Toppings: {{ hat_extras|join:", " }}
+                        </div>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+
+        {% if special %}
+        <p style="border-top: 1px dashed #444; pt: 10px;">
+            <span style="color: #fff200;">Daily Special:</span> {{ special }}
+        </p>
+        {% endif %}
+
+        <h2 style="text-align: right; border-top: 2px solid #fff200; padding-top: 10px;">
+            TOTAL: ${{ grand_total }}
+        </h2>
+    </div>
+</div>
+{% endblock %}

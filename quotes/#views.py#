@@ -18,8 +18,8 @@ quotes = [
     hundred heartbeats an hour)
     
     --Nabokov, Speak, Memory
-    
-    """,
+w    
+s    """,
     """
     It’s always the idle habits you acquire which you will regret. Father said
     that. That Christ was not crucified: he was worn away by a minute clicking
@@ -53,7 +53,7 @@ def quote(request):
 
     ri = random.randint(0, 2)
     ru = random.randint(0, 2)
-
+    
     context = {"random_quote": quotes[ru], "random_image_url": images[ri]}
 
     return render(request, "quotes/quote.html", context)

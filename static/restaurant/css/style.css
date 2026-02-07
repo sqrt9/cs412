@@ -1,0 +1,94 @@
+/*
+File: style.css
+Created: Feb 6.
+Author: Theodore Harlan
+        hpt@bu.edu
+Description: static quotes css formatting (inheritted)
+*/
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+                Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    background-color: #f7f7f7;
+    color: #222;
+}
+
+header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #ddd;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.simple-sidenav {
+    display: flex;
+    gap: 1rem;
+}
+
+.simple-sidenav a {
+    text-decoration: none;
+    color: #0066cc;
+    font-weight: 500;
+}
+
+.simple-sidenav a:hover {
+    text-decoration: underline;
+}
+
+main {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+.image {
+    max-width: 80%;
+    height: auto;
+}
+
+/* Minimalist Centered Table */
+.menu-table {
+    margin: 2rem auto;
+    width: 80%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    /* Removed shadow */
+}
+
+.menu-table th, 
+.menu-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd; /* Matches your header border */
+    color: #222;
+}
+
+.menu-table th {
+    background-color: #ffffff;
+    font-weight: 600;              /* Matches your header h1 */
+    text-transform: uppercase;     /* Optional: gives it a clean menu look */
+    font-size: 0.9rem;
+    letter-spacing: 0.05rem;
+}
+
+.center-container {
+    text-align: center;
+}
+
+.left-container {
+    text-align: left;
+}

@@ -1,0 +1,82 @@
+{% extends "restaurant/base.html" %}
+
+{% block content %}
+<div class="center-container" style="text-align: center;">
+    <img src="{{ orderimg }}" class="image" style="display: block; margin: 0 auto;">
+    <br></br>
+    <h1 style="text-align: center; font-family: monospace;">
+        <a href="{% url 'confirmation' %}" style="text-decoration: none;">
+            <span style="color: #fff200;">Complete</span> 
+            <span style="color: #ba91f2;">Order</span>
+        </a>
+    </h1>
+
+    <form action="{% url 'confirmation' %}" method="POST" input="submit">
+        {% csrf_token %}
+        <table class="menu-table" style="margin: 2rem auto; width: 80%;">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Price</th>
+                    <th>Qty</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item, price in menu.items %}
+                <tr>
+                    <td>
+                        {{ item }}
+                        {% if item == "Inedible Cowboy Hat" %}
+                        <div style="font-size: 0.8rem; margin-top: 5px; text-align: left;">
+                            <span style="color: #ba91f2;">Add toppings:</span><br>
+                            {% for extra in extras %}
+                            <input type="checkbox" name="hat_extras" value="{{ extra }}"> {{ extra }}<br>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td>${{ price }}</td>
+                    <td>
+                        <input type="number" name="qty_{{ item }}" min="0" value="0" style="width: 50px;">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div style="margin-top: 20px; border: 1px solid #ddd; padding: 15px; display: inline-block;">
+            <span style="color: #fff200;">TODAY'S SPECIAL: </span> 
+            <span style="color: #ba91f2;">{{ special }}</span>
+	    <br></br>
+	    <span style="color: #fff200l">SPECIALS ONLY AVAILABLE IN-RESTAURANT</span>
+        </div>
+
+        <br><br>
+
+<h2 style="text-align: center; font-family: monospace; margin-top: 30px;">
+    <span style="color: #fff200;">Customer</span> 
+    <span style="color: #ba91f2;">Information</span>
+</h2>
+
+<table class="menu-table" style="margin: 1rem auto; width: 80%;">
+    <tbody>
+        <tr>
+            <td style="color: #fff200; font-weight: bold; font-family: monospace;">Name:</td>
+            <td><input type="text" name="customer_name" placeholder="Human Name..." style="width: 100%; border: 1px solid #ddd; padding: 5px;"></td>
+        </tr>
+        <tr>
+            <td style="color: #ba91f2; font-weight: bold; font-family: monospace;">Email:</td>
+            <td><input type="email" name="customer_email" placeholder="email@hotland.com" style="width: 100%; border: 1px solid #ddd; padding: 5px;"></td>
+        </tr>
+        <tr>
+            <td style="color: #fff200; font-weight: bold; font-family: monospace;">Phone:</td>
+            <td><input type="tel" name="customer_phone" placeholder="555-DUMP" style="width: 100%; border: 1px solid #ddd; padding: 5px;"></td>
+        </tr>
+    </tbody>
+</table>
+
+<br></br>
+<br></br>
+	
+    </form>
+</div>
+{% endblock %}

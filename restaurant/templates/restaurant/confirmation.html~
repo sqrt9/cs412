@@ -1,0 +1,4 @@
+{% extends "restaurant/base.html" %}
+{ % block content % }
+<a href=""> helloo </a>
+{ % endblock % }

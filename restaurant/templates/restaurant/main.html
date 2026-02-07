@@ -1,0 +1,70 @@
+{% extends "restaurant/base.html" %}
+
+{% block content %}
+
+<div class="center-container">
+  <img src="{{logo}}" class="image">
+  <div class="left-container">
+    <p>
+      &emsp;&emsp;&emsp;&emsp;&emsp;
+      <span style="color: #fff200;">
+	[Bratty]</span> Hey! Check it out!
+      <br>
+      &emsp;&emsp;&emsp;&emsp;&emsp;
+      <span style="color: #ba91f2;">
+	[Catty]</span> Yeah! Check it out!
+      <br>
+      &emsp;&emsp;&emsp;&emsp;&emsp;
+      <span style="color: #ba91f2;">
+	[Catty]</span> Welcome to our... restaurant!
+      <br>
+      &emsp;&emsp;&emsp;&emsp;&emsp;
+      <span style="color: #fff200;">
+	[Bratty]</span> Find us in the alley to the right of the MTT
+      Resort - or place an order online...
+      <br>
+      &emsp;&emsp;&emsp;&emsp;&emsp;
+      <span style="color: #fff200;">
+	[Bratty]</span> What's the name of our restaurant?
+      <br>
+      &emsp;&emsp;&emsp;&emsp;&emsp;
+      <span style="color: #ba91f2;">[Catty]</span> Um. 'The Dump'!
+      <br>
+      &emsp;&emsp;&emsp;&emsp;&emsp;
+      <span style="color: #fff200;">[Bratty]</span> Yeah!!
+    </p>
+  </div>
+
+<h1 style="text-align: center;">
+    <span style="color: #fff200;">The</span> 
+    <span style="color: #ba91f2;">Dump</span>
+</h1>
+  
+  <table class="menu-table">
+    <thead>
+      <tr>
+	<th>Item</th>
+	<th>Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for day, time in hours.items %}
+      <tr>
+	<td>{{ day }}</td>
+	<td>{{ time }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+<h1 style="text-align: center;">
+    <a href="{% url 'order' %}">
+        <span style="color: #fff200;">Place</span> 
+        <span style="color: #ba91f2;">Order</span>
+    </a>
+</h1>
+  
+</div>
+
+
+{% endblock %}
