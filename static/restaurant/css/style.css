@@ -18,7 +18,7 @@ body {
                 Roboto, Helvetica, Arial, sans-serif;
     line-height: 1.5;
     background-color: #1a1a1a;
-    color: #222;
+    color: #ffffff;
 }
 
 header {
@@ -62,6 +62,7 @@ main {
 }
 
 .menu-table {
+    color: #ffffff
     margin: 2rem auto;
     width: 80%;
     border-collapse: collapse;
@@ -70,13 +71,14 @@ main {
 
 .menu-table th, 
 .menu-table td {
+    color: #ffffff
     padding: 1rem;
     text-align: left;
-    border-bottom: 1px solid #111; /* Matches your header border */
-    color: #222;
+    border-bottom: 1px solid #111; /* Matches header border */
 }
 
 .menu-table th {
+    color: #ffffff
     background-color: #1a1a1a;
     font-weight: 600;              /* Matches header h1 */
     text-transform: uppercase;     /* Optional: gives a clean menu look */
@@ -92,9 +94,4 @@ main {
     text-align: left;
 }
 
-body {
-    background-color: #1a1a1a;
-    color: white; /* Ensures your default text remains readable */
-    margin: 0;
-    padding: 0;
-}
+
