@@ -1,4 +1,4 @@
-# File: quotes/urls.py
+# File: urls.py
 # Created: Jan. 23
 # Author: Theodore Harlan
 #         hpt@bu.edu
@@ -27,5 +27,6 @@ from django.urls import path, include
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("quotes/", include("quotes.urls")),
-    path("restaurant/", include("restaurant.urls"))
+    path("restaurant/", include("restaurant.urls")),
+    path("testpages/", include("testpages.urls"))
     ]
