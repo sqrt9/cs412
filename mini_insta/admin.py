@@ -1,3 +1,8 @@
+# admin.py
+# Theodore Harlan
+# hpt@bu.edu
+# Auto generated
+
 from django.contrib import admin
 
 # Register your models here.

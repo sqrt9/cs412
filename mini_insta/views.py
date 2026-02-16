@@ -1,3 +1,8 @@
+# views.py
+# Theodore Harlan
+# hpt@bu.edu
+# Created Feb. 12
+
 from django.shortcuts import render
 
 # Create your views here.

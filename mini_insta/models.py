@@ -7,6 +7,8 @@ from django.db import models
 
 # Create your models here.
 class Profile(models.Model):
+    """Model for user profile in mini insta app
+    containing minimal info about a user"""
     username = models.CharField(max_length=150, unique=True)
     display_name = models.CharField(max_length=150)
     profile_image_url = models.URLField(blank=True)
