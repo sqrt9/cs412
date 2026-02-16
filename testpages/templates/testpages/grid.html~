@@ -1,0 +1,12 @@
+{% extends 'testpages/base.html' %}
+{% block content %}
+
+From template grid
+<div class="container">
+  <div class="header"></div>
+  <div class="sidebar"></div>
+  <div class="target"></div>
+  <div class="footer"></div>
+</div>
+
+{% endblock %}

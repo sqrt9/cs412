@@ -1,0 +1,88 @@
+
+
+html, body {
+    margin: 0;
+    height: 100%;
+}
+
+.scrollable {
+    overflow: auto;
+    min-height: 0px;
+    min-width: 0px;
+    scrollbar-width: none; 
+}
+
+.scroll-container {
+    background: #ddddff;
+    min-height: 100vh;
+    display: grid;
+    height: 100vh;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    grid-template-areas:
+	"obj1 obj2"
+	"obj3  obj4";
+}
+
+
+.obj1 {
+    grid-area: obj1;
+    background: #ff0000;
+}
+
+.obj2 {
+    grid-area: obj2;
+    background: #00ff00;
+}
+
+.obj3 {
+    grid-area: obj3;
+    background: #0000ff;
+}
+
+.obj4 {
+    grid-area: obj4;
+    background: #ff00ff;
+}
+
+
+.page-container {
+    background: #ddddff;
+    min-height: 100vh;
+    display: grid;
+    height: 100vh;
+    grid-template-columns: 1fr 9fr;
+    grid-template-rows: 1fr 9fr 1fr;
+    grid-template-areas:
+	"header header"
+	"sidebar target"
+	"sidebar footer";
+}
+
+.target {
+    min-height: 20px;
+    min-width: 20px;
+    grid-area: target;
+    background: #ff0000;
+}
+
+.header {
+    min-height: 20px;
+    min-width: 20px;
+    grid-area: header;
+    background: #00ff00;
+}
+
+.footer {
+    min-height: 20px;
+    min-width: 20px;
+    grid-area: footer;
+    background: #ffff00;
+}
+
+.sidebar {
+    min-height: 20px;
+    min-width: 20px;
+    grid-area: sidebar;
+    background: #0000ff;
+}

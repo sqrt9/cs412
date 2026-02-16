@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}All Profiles{% endblock %}
+
+{% block content %}
+<h1>All Profiles</h1>
+
+{% for profile in profiles %}
+    <div>
+        <p>{{ profile.display_name }} ({{ profile.username }})</p>
+    </div>
+{% empty %}
+    <p>No profiles found.</p>
+{% endfor %}
+{% endblock %}

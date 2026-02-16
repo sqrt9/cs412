@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="{% static 'testpages/css/style.css' %}">
     <title>Test</title>
   </head>
+  From template base
   <body>
     <main>
-      {% block content %}
+      {% block content %} 
       {% endblock %}
     </main>
   </body>
