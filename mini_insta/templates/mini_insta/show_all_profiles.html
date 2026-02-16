@@ -7,7 +7,10 @@
 
 {% for profile in profiles %}
     <div>
-        <p>{{ profile.display_name }} ({{ profile.username }})</p>
+        <a href="{% url 'show_profile' profile.pk %}">
+            <img src="{{ profile.profile_image_url }}" width="80">
+            {{ profile.display_name }}
+        </a>
     </div>
 {% empty %}
     <p>No profiles found.</p>

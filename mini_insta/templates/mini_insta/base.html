@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{% block title %}Site{% endblock %}</title>
+    <title>{% block title %}Mini Insta{% endblock %}</title>
 </head>
 <body>
-    <nav>
-        <a href="{% url 'home' %}">Home</a>
-    </nav>
-
     {% block content %}{% endblock %}
+
+    <hr>
+    <footer>
+        <a href="{% url 'home' %}">Back to All Profiles</a>
+    </footer>
 </body>
 </html>
