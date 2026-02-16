@@ -7,11 +7,11 @@ from .models import Profile
 
 class ProfileListView(ListView):
     model = Profile
-    template_name = "show_all_profiles.html"
+    template_name = "mini_insta/show_all_profiles.html"
     context_object_name = "profiles"
 
 
 class ProfileDetailView(DetailView):
     model = Profile
-    template_name = "show_profile.html"
+    template_name = "mini_insta/show_profile.html"
     context_object_name = "profile"
