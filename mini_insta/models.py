@@ -18,7 +18,7 @@ class Profile(models.Model):
     nick     = models.CharField(max_length=150)
     icon     = models.URLField(blank=True)
     bio      = models.TextField(blank=True)
-    join     = models.timestampTimeField(auto_now_add=True)
+    join     = models.TimeField(auto_now_add=True)
 
     def __str__(self):
         """
@@ -44,10 +44,10 @@ class Post(models.Model):
     """
     timestamp = models.DateField(auto_now_add=True)
     caption   = models.CharField(max_length=20)
-    profile   = models.CharField(max_length=150)
+    profile   = models.ForeignKey(Profile, on_delete=models.CASCADE)
 
 
-class Photo(models.Modle):
+class Photo(models.Model):
     """
     Model for photo objects
         Fields:
@@ -60,10 +60,9 @@ class Photo(models.Modle):
     """
     
     loc       = models.URLField()
-    desc      = models.TextFieldField(max_length=500)
+    desc      = models.TextField(max_length=500)
     alt       = models.CharField(default="")
     aid       = models.CharField(max_length=150)
-    id        = models.CharField(unique=True)
     slug      = models.CharField(unique=True)
         
     
