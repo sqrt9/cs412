@@ -1,0 +1,27 @@
+{% extends "mini_insta/base.html" %}
+
+{% block title %}Post{% endblock %}
+
+{% block content %}
+<h1>Post</h1>
+
+<table>
+    <tr><th>Caption:</th><td>{{ post.caption }}</td></tr>
+    <tr><th>Timestamp:</th><td>{{ post.timestamp }}</td></tr>
+</table>
+
+<hr>
+
+<h3>Photos</h3>
+<div>
+    {% for photo in post.photo_set.all %}
+        <img src="{{ photo.loc }}" width="200">
+    {% empty %}
+        <p>No photo for this post.</p>
+    {% endfor %}
+</div>
+<hr>
+<a href="{% url 'show_profile' post.profile.pk %}">
+  Back to {{ object.profile.display_name }}'s profile
+</a>
+{% endblock %}

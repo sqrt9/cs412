@@ -9,5 +9,7 @@ from . import views
 
 urlpatterns = [
     path("", views.ProfileListView.as_view(), name="show_all_profiles"),
-    path('mini_insta/profile/<int:pk>/', views.ProfileDetailView.as_view(), name='show_profile'),
+    path('profile/<int:pk>/', views.ProfileDetailView.as_view(), name='show_profile'),
+    path('post/<int:pk>/', views.PostDetailView.as_view(), name='show_post'),
+    path("profile/<int:pk>/create_post/", views.CreatePostView.as_view(), name="create_post"),
 ]

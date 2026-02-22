@@ -13,9 +13,10 @@ Date: 2026-2-13
 <h1>All Profiles</h1>
 
 {% for profile in profiles %}
+<hr>
     <div>
         <a href="{% url 'show_profile' profile.pk %}">
-            <img src="{{ profile.profile_image_url }}" width="80">
+            <img src="{{ profile.icon }}" width="80">
             {{ profile.display_name }}
         </a>
     </div>

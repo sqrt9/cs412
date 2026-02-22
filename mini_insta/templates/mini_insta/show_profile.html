@@ -14,16 +14,35 @@ Date: 2026-2-15
 
 <div style="display:flex; gap:20px;">
     <div>
-        <img src="{{ profile.profile_image_url }}" alt="profile image" width="200">
+        <img src="{{ profile.icon }}" alt="profile image" width="200">
     </div>
 
     <table>
         <tr><th>Username:</th><td>{{ profile.username }}</td></tr>
         <tr><th>Display Name:</th><td>{{ profile.display_name }}</td></tr>
-        <tr><th>Bio:</th><td>{{ profile.bio_text }}</td></tr>
-        <tr><th>Joined:</th><td>{{ profile.join_date }}</td></tr>
+        <tr><th>Bio:</th><td>{{ profile.bio }}</td></tr>
+        <tr><th>Joined:</th><td>{{ profile.joined }}</td></tr>
     </table>
 </div>
-
-<hr>
+    <p> 
+        Posts:
+        <div>
+            {% for post in profile.post_set.all %}
+            <hr>
+                <p>
+                    <a href="{% url 'show_post' post.pk %}">
+                        {{ post.caption }}
+                    </a>
+                </p>
+                {% with first_photo=post.photo_set.first %}
+                {% if first_photo %}
+                    <img src="{{ first_photo.loc }}" width="200">
+                {% else %}
+                    <img src="https://leadpointe.com/common/images/placeholder.jpg" width="200">
+                {% endif %}
+                {% endwith %}
+            {% endfor %}
+        </div>
+    </p>
+    
 {% endblock %}

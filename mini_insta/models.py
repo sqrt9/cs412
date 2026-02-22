@@ -2,8 +2,10 @@
 # Theodore Harlan
 # hpt@bu.edu
 # Created Feb. 12
+# Modified Feb. 20
 
 from django.db import models
+from django.utils import timezone
 import json
 
 # Create your models here.
@@ -14,11 +16,11 @@ class Profile(models.Model):
     containing minimal info about a user
     """
     
-    username = models.CharField(max_length=150, unique=True)
-    nick     = models.CharField(max_length=150)
-    icon     = models.URLField(blank=True)
-    bio      = models.TextField(blank=True)
-    join     = models.TimeField(auto_now_add=True)
+    username     = models.CharField(max_length=150, unique=True)
+    display_name = models.CharField(max_length=150)
+    icon         = models.URLField(blank=True)
+    bio          = models.TextField(blank=True)
+    joined       = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         """
@@ -27,69 +29,63 @@ class Profile(models.Model):
         
         return json.dumps(
             {
-                "username": self.username,
-                "nick"    : self.nick,
-                "icon"    : self.icon,
-                "bio"     : self.bio,
-                "join"    : self.join
+                "username"    : self.username,
+                "display_name": self.display_name,
+                "icon"        : self.icon,
+                "bio"         : self.bio,
+                "joined"      : self.joined.isoformat()
             }
         )
+        
 
 class Post(models.Model):
     """
     Model for the post relation.
             * timestamp        - date of upload
             * caption          - user provided photo title
-            * profile          - photo author
+            * profile          - post author
     """
-    timestamp = models.DateField(auto_now_add=True)
+    
+    timestamp = models.DateField(default=timezone.now)
     caption   = models.CharField(max_length=20)
     profile   = models.ForeignKey(Profile, on_delete=models.CASCADE)
-
-
+    
+    def __str__(self):
+        """
+        Build a string representation of a post.
+        """
+        
+        return json.dumps(
+            {
+                "timestamp": self.timestamp.isoformat(),
+                "caption"  : self.caption,
+                "profile"  : self.profile.display_name
+            }
+        )
+        
 class Photo(models.Model):
     """
     Model for photo objects
         Fields:
             * loc              - location of image
             * desc             - user provided photo desciption
-            * alt              - html alt text
-            * aid              - pkey of author
-            * id               - pkey of photo
-            * slug             - url slug of photo
+            * username         - username of author
+
     """
     
     loc       = models.URLField()
-    desc      = models.TextField(max_length=500)
-    alt       = models.CharField(default="")
-    aid       = models.CharField(max_length=150)
-    slug      = models.CharField(unique=True)
-        
+    post      = models.ForeignKey(Post, on_delete=models.CASCADE)
+    timestamp = models.DateField(default=timezone.now)
     
     def __str__(self):
         """
         Build a string representation of the photo object.
         """
-        loc       = self.loc
-        caption   = self.caption
-        alt       = self.alt
-        desc      = self.description
-        timestamp = self.timestamp
-        post      = self.post
-        aid       = self.aid
-        pid       = self.pid
-        slug      = self.slug
         
         return json.dumps(
             {
-                "loc"     : loc,
-                "caption" : caption,
-                "alt"     : alt,
-                "desc"    : desc,
-                "timetamp": timestamp,
-                "post"    : post,
-                "aid"     : aid,
-                "id"      : pid,
-                "slug"    : slug
+                "loc"     : self.loc,
+                "desc"    : self.timestamp.isoformat(),
+                "username": self.post.profile.username
             }
         )
