@@ -2,6 +2,8 @@
 # Theodore Harlan
 # hpt@bu.edu
 # Created Feb. 12
+# Modified Feb. 20
+# Mini_insta app view
 
 from django.shortcuts import render
 from django.urls import reverse
@@ -15,21 +17,39 @@ from .models import Post
 from .models import Photo
 
 class ProfileListView(ListView):
+    """
+    View for homepage, lists all profiles
+    """
+    
     model = Profile
     template_name = "mini_insta/show_all_profiles.html"
     context_object_name = "profiles"
 
 class ProfileDetailView(DetailView):
+    """
+    DetailView for profile page
+    """
+    
     model = Profile
     template_name = "mini_insta/show_profile.html"
     context_object_name = "profile"
 
 class PostDetailView(DetailView):
+    """
+    DetailView for post page
+    """
+    
     model = Post
     template_name = "mini_insta/post.html"
     context_object_name = "post"
 
 class CreatePostView(CreateView):
+    """
+    CreateView for create_post page
+    get_context_data method when the template created
+    form_valid method to INSERT the Post and Photo models
+    """
+    
     model = Post
     template_name = "mini_insta/create_post_form.html"
     fields = ["caption"]
