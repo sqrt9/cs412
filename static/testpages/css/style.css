@@ -16,14 +16,13 @@ html, body {
     background: #ddddff;
     min-height: 100vh;
     display: grid;
-    height: 100vh;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
     grid-template-areas:
 	"obj1 obj2"
-	"obj3  obj4";
+	"obj3 obj4";
+    gap: 3px;
 }
-
 
 .obj1 {
     grid-area: obj1;
@@ -44,7 +43,6 @@ html, body {
     grid-area: obj4;
     background: #ff00ff;
 }
-
 
 .page-container {
     background: #ddddff;

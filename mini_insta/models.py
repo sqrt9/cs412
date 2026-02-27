@@ -62,7 +62,7 @@ class Post(models.Model):
                 "profile"  : self.profile.display_name
             }
         )
-        
+
 class Photo(models.Model):
     """
     Model for photo objects
