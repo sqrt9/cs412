@@ -1,0 +1,54 @@
+<!-- File: delete_post.html 
+Created: Mar 1
+Modified Mar 2
+Author: Theodore Harlan
+hpt@bu.edu
+Description:
+Minimal template rendered to confirm the
+deletion of a post.
+-->
+
+
+{% extends "mini_insta/base.html" %}
+
+{% block title %}Delete Post{% endblock %}
+
+{% block content %}
+<h1>Delete Post</h1>
+
+<p>Delete this post?</p>
+
+<table>
+    <tr>
+        <th>Caption:</th>
+        <td>{{ post.caption }}</td>
+    </tr>
+    <tr>
+        <th>Author:</th>
+        <td>{{ profile.display_name }}</td>
+    </tr>
+    <tr>
+        <th>Timestamp:</th>
+        <td>{{ post.timestamp }}</td>
+    </tr>
+    <tr>
+    <th>Images:</th>
+    <td>
+        {% for photo in post.photo_set.all %}
+            <img src="{{ photo.get_image_url }}" width="100"><br>
+        {% empty %}
+            No photos.
+        {% endfor %}
+    </td>
+    </tr>
+</table>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Delete</button>
+    <a href="{% url 'show_profile' profile.pk %}">
+        <button type="button">Cancel</button>
+    </a>
+</form>
+
+{% endblock %}

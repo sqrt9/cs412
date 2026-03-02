@@ -1,0 +1,30 @@
+<!-- File: followers.html 
+Created: Mar 1
+Modified Mar 2
+Author: Theodore Harlan
+hpt@bu.edu
+Description:
+Show all the users following this Profile
+-->
+
+{% extends "mini_insta/base.html" %}
+
+{% block title %}Followers{% endblock %}
+{% block content%}
+<h1>Followers {{ profile.get_num_followers }}</h1>
+{% for follower in profile.get_followers %}
+    <hr>
+    <div>
+        <a href="{% url 'show_profile' follower.pk %}">
+            <img src="{{ follower.icon }}" width="80">
+            {{ follower.display_name }}
+        </a>
+    </div>
+    {% empty %}
+    <p>No followers</p>
+{% endfor %}
+<hr>
+    <p>
+        <a href="{% url 'show_profile' profile.pk %}">Back to profile page</a>
+    </p>
+{% endblock %}

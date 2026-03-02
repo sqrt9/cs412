@@ -2,7 +2,7 @@
 # Created: Jan. 23
 # Author: Theodore Harlan
 #         hpt@bu.edu
-# Description: url imports for top level cs412
+# Description: url imports for top level cs412 project
 
 """
 URL configuration for cs412 project.
@@ -23,11 +23,15 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from . import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("quotes/", include("quotes.urls")),
     path("restaurant/", include("restaurant.urls")),
     path("testpages/", include("testpages.urls")),
-    path("mini_insta/", include("mini_insta.urls")),
+    path("mini_insta/", include("mini_insta.urls"))
     ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

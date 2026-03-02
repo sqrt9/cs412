@@ -3,6 +3,9 @@
 Author: Theodore Harlan
 hpt@bu.edu
 Created Feb. 20
+Page for an individual post. Displays
+all photos, or a placeholder. Photos
+may be URLs or uploaded media.
  -->
 
 
@@ -23,13 +26,36 @@ Created Feb. 20
 <h3>Photos</h3>
 <div>
     {% for photo in post.photo_set.all %}
-        <img src="{{ photo.loc }}" width="200">
+        <img src="{{ photo.get_image_url }}" width="200">
     {% empty %}
         <p>No photo for this post.</p>
     {% endfor %}
 </div>
+<div>
+    Liked by {{ post.get_like_count }} user(s).
+    {% for like in post.get_likes %}
+    <a href="{% url 'show_profile' like.profile.pk %}">{{ like.profile.display_name }}</a>
+    {% endfor %}
+</div>
+<div>
+    <h3>{{ post.get_num_comments }} Comments</h3>
+    {% for comment in post.get_comments %}
+    <p>
+        <a href="{% url 'show_profile' comment.profile.pk %}">{{ comment.profile.display_name }}</a> -- {{ comment.timestamp }}
+    </p>
+    <p>
+        {{ comment.text }}
+    </p>
+    {% endfor%}
+    <br>
+</div>
 <hr>
-<a href="{% url 'show_profile' post.profile.pk %}">
-  Back to {{ object.profile.display_name }}'s profile
-</a>
+<p>
+    <a href="{% url 'delete_post' post.pk %}">Delete Post</a>
+</p>
+<p>
+    <a href="{% url 'show_profile' post.profile.pk %}">
+      Back to {{ object.profile.display_name }}'s profile
+    </a>
+</p>
 {% endblock %}

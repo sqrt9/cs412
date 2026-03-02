@@ -1,0 +1,59 @@
+<!-- File: show_feed.html 
+Created: Mar 1
+Modified Mar 2
+Author: Theodore Harlan
+hpt@bu.edu
+Description:
+Personalized feed showing posts from users this
+Profile is following. Includes top image and
+first three comments made on each post
+-->
+
+
+{% extends "mini_insta/base.html" %}
+
+{% block title %}Feed{% endblock %}
+
+{% block content %}
+<h1>Feed for {{ profile.display_name }}</h1>
+    <p>
+        <a href="{% url 'show_profile' profile.pk %}">Back to profile page</a>
+    </p>
+<div>
+    {% for post in feed_posts %}
+    <hr>
+        <p>
+            <a href="{% url 'show_profile' post.profile.pk %}">{{ post.profile.display_name }}</a> posted 
+            <a href="{% url 'show_post' post.pk %}">
+                {{ post.caption }}
+            </a>
+            <br>
+        </p>
+        
+        {% with first_photo=post.photo_set.first %}
+        {% if first_photo %}
+            <img src="{{ first_photo.get_image_url }}" width="200">
+        {% else %}
+            <img src="https://leadpointe.com/common/images/placeholder.jpg" width="200">
+        {% endif %}
+        {% endwith %}
+        <br>
+        {{ post.timestamp }}
+        <p>{{ post.get_like_count }} likes</p>
+        <p>{{ post.get_num_comments }} comments</p>
+            {% for comment in post.get_comments|slice:":3" %}
+                <p>
+                    {% if comment.profile %}
+                        <a href="{% url 'show_profile' comment.profile.pk %}">{{ comment.profile.display_name }}</a>
+                    {% else %}
+                        <span>Deleted User</span>
+                    {% endif %} 
+                    -- {{ comment.timestamp }}
+                </p>
+                <p>{{ comment.text }}</p>
+            {% endfor %}
+    {% empty %}
+        <p>No posts to show.</p>
+    {% endfor %}
+</div>
+{% endblock %}

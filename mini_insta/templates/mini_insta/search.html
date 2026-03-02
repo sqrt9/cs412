@@ -1,0 +1,23 @@
+<!-- File: search.html 
+Created: Mar 1
+Modified Mar 2
+Author: Theodore Harlan
+hpt@bu.edu
+Description:
+Simple form to submit a search result.
+Render this  when calling the list view when
+dispatch() is given no 'query' form. 
+-->
+
+
+{% block title %}Search{% endblock %}
+
+{% block content %}
+<h1>Search</h1>
+<p><a href="{% url 'show_profile' profile.pk %}">Back to Profile</a></p>
+
+<form method="GET">
+    <input type="text" name="query" placeholder="Search profiles or posts..." required>
+    <button type="submit">Search</button>
+</form>
+{% endblock %}

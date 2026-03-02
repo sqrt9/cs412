@@ -4,7 +4,13 @@ Theodore Harlan
 Hpt@bu.edu
 Date: 2026-2-15
 Modified Feb. 20
+Description:
+Base template for mini_insta app. Conditionally
+displays footer depending on whether a profile is
+in the context, ei: run search as user, update profile,
+create post, browse feed.
 -->
+
 
 <!DOCTYPE html>
 <html>
@@ -16,9 +22,22 @@ Modified Feb. 20
     {% endblock %}
     <hr>
     <footer>
+        {% if profile %}
+    <p>
         <a href="{% url 'show_all_profiles' %}">Back to All Profiles</a>
-    {% if profile %}
-        <a href="{% url 'create_post' profile.pk %}">Create Post</a>
+    </p>
+    <p>
+        <a href="{% url 'create_post' profile.pk %}">Create Post</a> 
+    </p>
+    <p>
+        <a href="{% url 'update_profile' profile.pk %}">Update Profile</a>
+    </p>
+    <p>
+        <a href="{% url 'feed' profile.pk %}">Browse feed</a>
+    </p>
+    <p>
+        <a href="{% url 'search' profile.pk %}">Run search as user</a>
+    </p>
     {% endif %}
     </footer>
 </body>

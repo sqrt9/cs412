@@ -1,0 +1,59 @@
+<!-- File: search_results.html 
+Created: Mar 1
+Modified Mar 2
+Author: Theodore Harlan
+hpt@bu.edu
+Description:
+Page for case insensitive searches of various
+fields described in the view method.
+Rendered when calling the list view and
+dispatch() is given a 'query' form (on POST).
+-->
+
+{% extends "mini_insta/base.html" %}
+
+{% block content %}
+<h1>Results for "{{ query }}"</h1>
+<p><a href="{% url 'show_profile' profile.pk %}">Back to Profile</a></p>
+
+<h3>Matching Profiles</h3>
+<ul>
+    {% for p in profiles %}
+        <li>
+            <img src="{{ profile.icon }}" width="80">
+            <a href="{% url 'show_profile' p.pk %}">{{ p.display_name }}</a> (@{{ p.username }})
+        </li>
+    {% empty %}
+        <li>No profiles found.</li>
+    {% endfor %}
+</ul>
+
+<hr>
+
+<h3>Matching Posts</h3>
+<div>
+    {% for post in posts %}
+    <ul>
+        <p>
+            <li>
+            <p>
+                {{ post.profile.display_name }}:
+            </p>
+            {% with first_photo=post.photo_set.first %}
+                {% if first_photo %}
+                    <img src="{{ first_photo.get_image_url }}" width="80">
+                {% else %}
+                    <img src="https://leadpointe.com/common/images/placeholder.jpg" width="200">
+                {% endif %}
+                {% endwith %}
+                <p>
+                    <a href="{% url 'show_post' post.pk %}">{{ post.caption }}</a>
+                </p>
+            </li> 
+        </p>
+    </ul>
+    {% empty %}
+        <p>No posts found.</p>
+    {% endfor %}
+</div>
+{% endblock %}

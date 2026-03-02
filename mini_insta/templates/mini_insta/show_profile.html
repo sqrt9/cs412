@@ -3,7 +3,12 @@ show_profile.html
 Theodore Harlan
 Hpt@bu.edu
 Date: 2026-2-15
+Description:
+Singular profile view. Counts profiles followed
+and following, and previews of Posts and Photos
+this account has uploaded.
 -->
+
 
 {% extends "mini_insta/base.html" %}
 
@@ -16,12 +21,13 @@ Date: 2026-2-15
     <div>
         <img src="{{ profile.icon }}" alt="profile image" width="200">
     </div>
-
     <table>
         <tr><th>Username:</th><td>{{ profile.username }}</td></tr>
         <tr><th>Display Name:</th><td>{{ profile.display_name }}</td></tr>
         <tr><th>Bio:</th><td>{{ profile.bio }}</td></tr>
         <tr><th>Joined:</th><td>{{ profile.joined }}</td></tr>
+        <tr><th>Followers</th><td><a href="{% url 'followers' profile.pk %}">{{ profile.get_num_followers }}</a></td></tr>
+        <tr><th>Following</th><td><a href="{% url 'following' profile.pk %}">{{ profile.get_num_following }}</a></td></tr>
     </table>
 </div>
     <p> 
@@ -34,9 +40,9 @@ Date: 2026-2-15
                         {{ post.caption }}
                     </a>
                 </p>
-                {% with first_photo=post.photo_set.first %}
+            {% with first_photo=post.photo_set.first %}
                 {% if first_photo %}
-                    <img src="{{ first_photo.loc }}" width="200">
+                    <img src="{{ first_photo.get_image_url }}" width="200">
                 {% else %}
                     <img src="https://leadpointe.com/common/images/placeholder.jpg" width="200">
                 {% endif %}
