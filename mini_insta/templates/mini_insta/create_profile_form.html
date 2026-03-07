@@ -1,0 +1,29 @@
+<!-- File: create_profile_form.html 
+Created: Mar 6
+Author: Theodore Harlan
+hpt@bu.edu
+Description:
+Profile and user creation forms
+sent to the CreateView associated
+with this url, create_profile
+-->
+
+
+
+{% extends "mini_insta/base.html" %}
+{% block content %}
+
+<h1>Create Profile</h1>
+<form method="POST">
+    {% csrf_token %}
+
+    <!--  as_p - put in paragraph tags  --> 
+    <h1>Account Information</h1>
+    {{ user_form.as_p }}
+
+    <h1>Profile Information</h1>
+    {{ form.as_p }}
+
+    <button type="submit">Create Profile</button>
+</form>
+{% endblock %}

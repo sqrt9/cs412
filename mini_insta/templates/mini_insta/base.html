@@ -15,8 +15,15 @@ create post, browse feed.
 <!DOCTYPE html>
 <html>
 <head>
+    
     <title>{% block title %}Mini Insta{% endblock %}</title>
 </head>
+<div style="background: yellow; padding: 10px;">
+    DEBUG: <br>
+    Username: {{ user.username }} <br>
+    Is Authenticated: {{ user.is_authenticated }} <br>
+    Session ID: {{ request.session.session_key }}
+</div>
 <body>
     {% block content %}
     {% endblock %}
@@ -26,18 +33,33 @@ create post, browse feed.
     <p>
         <a href="{% url 'show_all_profiles' %}">Back to All Profiles</a>
     </p>
-    <p>
-        <a href="{% url 'create_post' profile.pk %}">Create Post</a> 
-    </p>
-    <p>
-        <a href="{% url 'update_profile' profile.pk %}">Update Profile</a>
-    </p>
-    <p>
-        <a href="{% url 'feed' profile.pk %}">Browse feed</a>
-    </p>
-    <p>
-        <a href="{% url 'search' profile.pk %}">Run search as user</a>
-    </p>
+    {% endif %}
+    {% if user.is_authenticated and user.profile %}
+        <p>
+            <a href="{% url 'create_post' %}">Create Post</a> 
+        </p>
+        <p>
+            <a href="{% url 'update_profile' %}">Update your Profile</a>
+        </p>
+        <p>
+            <a href="{% url 'feed' %}">Browse your Feed</a>
+        </p>
+        <p>
+            <a href="{% url 'search' %}">Make a Search</a>
+        </p>
+        <p>
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+        </p>
+        {% else %}
+            <p>
+                <a href="{% url 'login' %}">Login</a>
+            </p>
+            <p>
+                <a href="{% url 'create_profile' %}">Create Profile</a>
+            </p>
     {% endif %}
     </footer>
 </body>

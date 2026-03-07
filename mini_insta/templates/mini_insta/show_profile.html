@@ -29,6 +29,11 @@ this account has uploaded.
         <tr><th>Followers</th><td><a href="{% url 'followers' profile.pk %}">{{ profile.get_num_followers }}</a></td></tr>
         <tr><th>Following</th><td><a href="{% url 'following' profile.pk %}">{{ profile.get_num_following }}</a></td></tr>
     </table>
+     <p>
+        {% if user.is_authenticated and user.profile != profile %}
+        <a href="{% url 'follow' profile.pk %}">Follow</a>
+        {% endif %}
+    </p>
 </div>
     <p> 
         Posts:

@@ -23,7 +23,7 @@ footer whenever a profile is in context.
         {{ form.as_table }}
     </table>
     <button type="submit">Save Changes</button>
-    <a href="{% url 'show_profile' profile.pk %}">
+    <a href="{% url 'show_profile' user.profile.pk %}">
         <button type="button">Cancel</button>
     </a>
 </form>

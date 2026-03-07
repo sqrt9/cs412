@@ -1,0 +1,19 @@
+<!-- File: logged_out.html 
+Created: Mar 6
+Author: Theodore Harlan
+hpt@bu.edu
+Description:
+Minimal redirection page after logout
+-->
+
+
+<html>
+<head>
+    <title>Logged Out</title>
+</head>
+<body>
+    <h1>You have been logged out</h1>
+    <p><a href="{% url 'login' %}">Log in again</a></p>
+    <p><a href="{% url 'show_all_profiles' %}">To profile list</a></p>
+</body>
+</html>

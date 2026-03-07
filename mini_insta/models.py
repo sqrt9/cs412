@@ -11,6 +11,7 @@
 
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import User
 import json
 
 # Create your models here.
@@ -26,7 +27,7 @@ class Profile(models.Model):
     icon         = models.URLField(blank=True)
     bio          = models.TextField(blank=True)
     joined       = models.DateTimeField(default=timezone.now)
-    
+    user         = models.OneToOneField(User, on_delete=models.CASCADE)
     
     def __str__(self):
         """

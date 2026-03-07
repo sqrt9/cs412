@@ -20,7 +20,7 @@ dispatch() is given a 'query' form (on POST).
 <ul>
     {% for p in profiles %}
         <li>
-            <img src="{{ profile.icon }}" width="80">
+            <img src="{{ p.icon }}" width="80">
             <a href="{% url 'show_profile' p.pk %}">{{ p.display_name }}</a> (@{{ p.username }})
         </li>
     {% empty %}

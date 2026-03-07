@@ -12,7 +12,7 @@ dispatch() is given no 'query' form.
 
 {% block content %}
 <h1>Search</h1>
-<p><a href="{% url 'show_profile' profile.pk %}">Back to Profile</a></p>
+<p><a href="{% url 'show_profile' user.profile.pk %}">Back to Profile</a></p>
 
 <form method="GET">
     <input type="text" name="query" placeholder="Search profiles or posts..." required>

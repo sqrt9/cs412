@@ -24,7 +24,7 @@ Template page for Post and optional Photo submission
         </tr>
     </table>
     <button type="submit">Submit</button>
-    <a href="{% url 'show_profile' profile.pk %}">
+    <a href="{% url 'show_profile' user.profile.pk %}">
         <button type="button">Cancel</button>
     </a>
 </form>

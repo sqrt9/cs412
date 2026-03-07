@@ -37,6 +37,9 @@ may be URLs or uploaded media.
     <a href="{% url 'show_profile' like.profile.pk %}">{{ like.profile.display_name }}</a>
     {% endfor %}
 </div>
+
+<p><a href="{% url 'like' post.pk %}">Like</a></p>
+
 <div>
     <h3>{{ post.get_num_comments }} Comments</h3>
     {% for comment in post.get_comments %}

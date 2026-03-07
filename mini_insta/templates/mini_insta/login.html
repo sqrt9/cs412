@@ -1,0 +1,19 @@
+<!-- File: login.html 
+Created: Mar 6
+Author: Theodore Harlan
+hpt@bu.edu
+Description:
+Generated login form for mini_insta.
+Form provided by view superclass,
+-->
+
+
+{% block content %}
+<h1>Login</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input type="hidden" name="next" value="/mini_insta/">
+    <button type="submit">Login</button>
+</form>
+{% endblock %}
