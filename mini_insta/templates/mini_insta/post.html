@@ -38,7 +38,9 @@ may be URLs or uploaded media.
     {% endfor %}
 </div>
 
+{% if user.is_authenticated and user.profile != profile %}
 <p><a href="{% url 'like' post.pk %}">Like</a></p>
+{% endif %}
 
 <div>
     <h3>{{ post.get_num_comments }} Comments</h3>
