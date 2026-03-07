@@ -46,7 +46,7 @@ deletion of a post.
 <form method="post">
     {% csrf_token %}
     <button type="submit">Delete</button>
-    <a href="{% url 'show_profile' profile.pk %}">
+    <a href="{% url 'show_profile' user.profile.pk %}">
         <button type="button">Cancel</button>
     </a>
 </form>

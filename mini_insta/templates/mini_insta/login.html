@@ -13,7 +13,7 @@ Form provided by view superclass,
 <form method="post">
     {% csrf_token %}
     {{ form }}
-    <input type="hidden" name="next" value="/mini_insta/">
+    <input type="hidden" name="next" value="{% url 'show_all_profiles' %}">
     <button type="submit">Login</button>
 </form>
 {% endblock %}

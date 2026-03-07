@@ -155,10 +155,13 @@ class DeletePostView(LoginRequiredMixin, DeleteView):
     context_object_name = "post"
     template_name       = "mini_insta/delete_post.html"
     
+    def get_queryset(self):
+        return Post.objects.filter(profile=self.request.user.profile)
+    
     def get_context_data(self, **kwargs):
         # Tell template renderer of this profile
-        context            = super().get_context_data(**kwargs)
-        context["profile"] = self.object.profile
+        context = super().get_context_data(**kwargs)
+        context["post"] = self.object
         return context
     
     def get_success_url(self):

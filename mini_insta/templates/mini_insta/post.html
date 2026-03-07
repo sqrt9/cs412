@@ -55,9 +55,11 @@ may be URLs or uploaded media.
     <br>
 </div>
 <hr>
+{% if request.user == post.profile.user %}
 <p>
     <a href="{% url 'delete_post' post.pk %}">Delete Post</a>
 </p>
+{% endif %}
 <p>
     <a href="{% url 'show_profile' post.profile.pk %}">
       Back to {{ object.profile.display_name }}'s profile
