@@ -1,0 +1,79 @@
+<!--
+Graphs.html
+hpt@bu.edu theodore harlan
+description
+page to display  plotly graphs from newton voters
+-->
+
+{% extends 'voter_analytics/base.html' %}
+
+{% block title %}Voter Graphs{% endblock %}
+
+{% block content %}
+<h1>Newton Voters — Graphs</h1>
+
+<form method="GET" action="">
+  <label>Party:
+    <select name="party">
+      <option value="">any</option>
+      {% for p in parties %}
+        <option value="{{ p }}" {% if p == selected_party %}selected{% endif %}>{{ p }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label>Min Year of Birth:
+    <select name="min_dob">
+      <option value="">any</option>
+      {% for year in years %}
+        <option value="{{ year }}"
+         {% if year|stringformat:"s" == selected_min_dob %}selected{% endif %}>{{ year }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label>Max Year of Birth:
+    <select name="max_dob">
+      <option value="">any</option>
+      {% for year in years %}
+        <option value="{{ year }}"
+        {% if year|stringformat:"s" == selected_max_dob %}selected{% endif %}>{{ year }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label>Voter Score:
+    <select name="voter_score">
+      <option value="">any</option>
+      {% for s in scores %}
+        <option value="{{ s }}"
+         {% if s|stringformat:"s" == selected_score %}selected{% endif %}>{{ s }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <fieldset>
+    <legend>Voted in:</legend>
+    <label><input type="checkbox" name="v20state"
+         {% if selected_v20state %}checked{% endif %}> 2020 State</label>
+    <label><input type="checkbox" name="v21town"
+         {% if selected_v21town %}checked{% endif %}> 2021 Town</label>
+    <label><input type="checkbox" name="v21primary"
+         {% if selected_v21primary %}checked{% endif %}> 2021 Primary</label>
+    <label><input type="checkbox" name="v22general"
+         {% if selected_v22general %}checked{% endif %}> 2022 General</label>
+    <label><input type="checkbox" name="v23town"
+         {% if selected_v23town %}checked{% endif %}> 2023 Town</label>
+  </fieldset>
+
+  <button type="submit">Filter</button>
+  <a href="{% url 'graphs' %}">Reset</a>
+</form>
+
+{{ birth_year_graph|safe }}
+{{ party_graph|safe }}
+{{ election_graph|safe }}
+
+<a href="{% url 'voters' %}"> Back to voter list</a>
+
+{% endblock %}

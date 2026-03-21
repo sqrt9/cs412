@@ -1,0 +1,44 @@
+<!--
+voter.html 2026
+hpt@bu.edu theodore harlan
+description
+single page for voter data with a link to
+find them on google maps, which is not creepy at all
+-->
+{% extends 'voter_analytics/base.html' %}
+
+{% block title %}{{ voter.first_name }} {{ voter.last_name }}{% endblock %}
+
+{% block content %}
+<h1>{{ voter.first_name }} {{ voter.last_name }}</h1>
+
+<table border="1">
+  <tr><th>Field</th><th>Value</th></tr>
+  <tr><td>Street Address</td><td>{{ voter.street_number }} {{ voter.street_name }}{% if voter.apartment_number %}, Apt {{ voter.apartment_number }}{% endif %}</td></tr>
+  <tr><td>Zip Code</td><td>{{ voter.zip_code }}</td></tr>
+  <tr><td>Date of Birth</td><td>{{ voter.date_of_birth }}</td></tr>
+  <tr><td>Date of Registration</td><td>{{ voter.date_of_registration }}</td></tr>
+  <tr><td>Party Affiliation</td><td>{{ voter.party_affiliation }}</td></tr>
+  <tr><td>Precinct Number</td><td>{{ voter.precinct_number }}</td></tr>
+  <tr><td>Voter Score</td><td>{{ voter.voter_score }}</td></tr>
+
+  <tr><th colspan="2">Election Participation</th></tr>
+  <tr><td>2020 State</td><td>{{ voter.v20state }}</td></tr>
+  <tr><td>2021 Town</td><td>{{ voter.v21town }}</td></tr>
+  <tr><td>2021 Primary</td><td>{{ voter.v21primary }}</td></tr>
+  <tr><td>2022 General</td><td>{{ voter.v22general }}</td></tr>
+  <tr><td>2023 Town</td><td>{{ voter.v23town }}</td></tr>
+</table>
+
+<!-- Google Maps link -->
+{% with address=voter.street_number|add:" "|add:voter.street_name|add:" Newton MA "|add:voter.zip_code %}
+<p>
+  <a href="https://www.google.com/maps/search/?api=1&query={{ address|urlencode }}">
+    View on Google Maps
+  </a>
+</p>
+{% endwith %}
+
+<a href="{% url 'voters' %}">← Back to all voters</a>
+
+{% endblock %}

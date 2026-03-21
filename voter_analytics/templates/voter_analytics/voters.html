@@ -1,0 +1,128 @@
+<!--
+voters 2026
+hpt@bu.edu theodore harlan
+description
+Main paginsated display of voter models
+Links to individual voters and remembers your search
+-->
+
+{% extends 'voter_analytics/base.html' %}
+
+{% block title %}MA Voters{% endblock %}
+
+{% block content %}
+<h1>Newton Voters</h1>
+
+<form method="GET" action="">
+  <label>Party:
+    <select name="party">
+      <option value="">any</option>
+      {% for p in parties %}
+        <option value="{{ p }}" {% if p == selected_party %}selected{% endif %}>{{ p }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label>Min Year of Birth:
+    <select name="min_dob">
+      <option value="">any</option>
+      {% for year in years %}
+        <option value="{{ year }}"
+        {% if year|stringformat:"s" == selected_min_dob %}
+        selected
+        {% endif %}>
+        {{ year }}
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label>Max Year of Birth:
+    <select name="max_dob">
+      <option value="">any</option>
+      {% for year in years %}
+        <option value="{{ year }}"
+        {% if year|stringformat:"s" == selected_max_dob %}
+        selected
+        {% endif %}>
+        {{ year }}
+      </option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label>Voter Score:
+    <select name="voter_score">
+      <option value="">any</option>
+      {% for s in scores %}
+        <option value="{{ s }}"
+        {% if s|stringformat:"s" == selected_score %}
+        selected
+        {% endif %}>
+        {{ s }}
+      </option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <fieldset>
+    <legend>Voted in:</legend>
+    <label><input type="checkbox" name="v20state"
+        {% if selected_v20state %}checked{% endif %}> 2020 State</label>
+    <label><input type="checkbox" name="v21town"
+        {% if selected_v21town %}checked{% endif %}> 2021 Town</label>
+    <label><input type="checkbox" name="v21primary"
+        {% if selected_v21primary %}checked{% endif %}> 2021 Primary</label>
+    <label><input type="checkbox" name="v22general"
+        {% if selected_v22general %}checked{% endif %}> 2022 General</label>
+    <label><input type="checkbox" name="v23town"
+        {% if selected_v23town %}checked{% endif %}> 2023 Town</label>
+  </fieldset>
+
+  <button type="submit">Filter</button>
+  <a href="{% url 'voters' %}">Reset</a>
+
+</form>
+
+<p>Showing {{ paginator.count }} voters</p>
+<table>
+  <thead>
+    <tr>
+      <th>First</th>
+      <th>Last</th>
+      <th>Address</th>
+      <th>DoB</th>
+      <th>Party</th>
+      <th>Score</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for voter in voters %}
+    <tr>
+
+  <td><a href="{% url 'voter' voter.pk %}">{{ voter.first_name }}</a></td>
+  <td><a href="{% url 'voter' voter.pk %}">{{ voter.last_name }}</a></td>
+      <td>{{ voter.street_number }} {{ voter.street_name }}{% if voter.apartment_number %}, Apt {{ voter.apartment_number }}{% endif %}</td>
+      <td>{{ voter.date_of_birth }}</td>
+      <td>{{ voter.party_affiliation }}</td>
+      <td>{{ voter.voter_score }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div>
+  {% if page_obj.has_previous %}
+    <a href="?page=1&party={{ selected_party }}&min_dob={{ selected_min_dob }}&max_dob={{ selected_max_dob }}&voter_score={{ selected_score }}">« First</a>
+    <a href="?page={{ page_obj.previous_page_number }}&party={{ selected_party }}&min_dob={{ selected_min_dob }}&max_dob={{ selected_max_dob }}&voter_score={{ selected_score }}">Previous</a>
+  {% endif %}
+
+  <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+  {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}&party={{ selected_party }}&min_dob={{ selected_min_dob }}&max_dob={{ selected_max_dob }}&voter_score={{ selected_score }}">Next</a>
+    <a href="?page={{ page_obj.paginator.num_pages }}&party={{ selected_party }}&min_dob={{ selected_min_dob }}&max_dob={{ selected_max_dob }}&voter_score={{ selected_score }}">Last »</a>
+  {% endif %}
+</div>
+
+{% endblock %}
