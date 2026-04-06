@@ -1,0 +1,19 @@
+<!--
+jokes.html
+hpt@bu.edu theodore harlan
+description April 3 2026
+page to display all jokes
+-->
+
+{% extends 'dadjokes/base.html' %}
+
+{% block title %} single joke{% endblock %}
+
+{% block content %}
+
+{% for p in pictures %}
+    <img src="{{ p.media }}" alt="joke image">
+ <br>
+{% endfor %}
+
+{% endblock %}

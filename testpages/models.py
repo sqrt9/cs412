@@ -19,11 +19,15 @@ class CollectionArtist(models.Model):
     collectionArtistLocation    = models.CharField(max_length=128);
     collectionArtistDescription = models.CharField(max_length=128);
 
+class CollectionTrack(models.Model):
+    trackFile = models.FileField()
+
 class Collection(models.Model):
     collectionTitle       = models.CharField(max_length=128)
     collectionDescription = models.CharField(max_length=500)
     collectionMediaType   = models.CharField(max_length=128)
     collectionArtist      = models.ManyToManyField(CollectionArtist)
+    collectionTracks      = models.ManyToManyField(CollectionTrack)
     collectionYear        = models.IntegerField()
     collectionTracks      = models.IntegerField()
     collectionDisks       = models.IntegerField()
