@@ -33,5 +33,12 @@ urlpatterns = [
     path("profile/<int:pk>/follow", views.FollowView.as_view(), name="follow"),
     path("profile/<int:pk>/delete_follow", views.DeleteFollowView.as_view(), name="delete_follow"),
     path("post/<int:pk>/like", views.LikeView.as_view(), name="like"),
-    path("post/<int:pk>/delete_like", views.DeleteLikeView.as_view(), name="delete_like")
+    path("post/<int:pk>/delete_like", views.DeleteLikeView.as_view(), name="delete_like"),
+    path("api/profiles/", views.ProfileListAPIView.as_view(), name="api_profiles"),
+    path("api/profiles/<int:pk>/", views.ProfileDetailAPIView.as_view(), name="api_profile_detail"),
+    path("api/profiles/<int:pk>/posts/", views.ProfilePostsAPIView.as_view(), name="api_profile_posts"),
+    path("api/profiles/<int:pk>/posts/create/", views.ProfilePostCreateAPIView.as_view(), name="api_profile_post_create"),
+    path("api/profiles/<int:pk>/feed/", views.ProfileFeedAPIView.as_view(), name="api_profile_feed"),
+    path("api/login/", views.LoginAPIView.as_view(),  name="api_login"),
+    path("api/logout/", views.LogoutAPIView.as_view(), name="api_logout"),
 ]

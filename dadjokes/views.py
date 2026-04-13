@@ -55,7 +55,6 @@ def api_jokes(request):
         return JsonResponse(serializer.data, safe=False) # safe=False is needed for lists
     
     elif request.method == 'POST':
-        # Manual POST handling without DRF's request.data
         import json
         data = json.loads(request.body)
         serializer = JokeSerializer(data=data)

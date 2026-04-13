@@ -38,6 +38,8 @@ ALLOWED_HOSTS = ["cs-webapps.bu.edu", "127.0.0.1", "localhost"]
 # Application definition
 
 INSTALLED_APPS = [
+    "rest_framework",
+    "rest_framework.authtoken", 
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
