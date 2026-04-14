@@ -9,7 +9,6 @@ class PhotoSerializer(serializers.ModelSerializer):
  
  
 class ProfileSerializer(serializers.ModelSerializer):
-    """Lightweight profile — used when embedded inside other objects."""
     class Meta:
         model  = Profile
         fields = ["id", "username","display_name", "bio", "icon"]
@@ -29,7 +28,6 @@ class PostSerializer(serializers.ModelSerializer):
  
  
 class PostCreateSerializer(serializers.ModelSerializer):
-    """Write-only serializer used when creating a new post via the API."""
     class Meta:
         model  = Post
         fields = ["caption"]

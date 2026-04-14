@@ -29,13 +29,6 @@ from django.contrib.auth import login
 from .models import Profile, Post, Photo, Follow, Like
 from .forms import *
 
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import authentication, permissions
-from django.contrib.auth.models import User
-
-
 class CreateProfileView(CreateView):
     """
     View for profile creation page. Displays and submits two forms:
@@ -299,169 +292,50 @@ class DeleteLikeView(LoginRequiredMixin, TemplateView):
         ).delete()
         return redirect("show_post", pk=post.pk)
 
+from rest_framework import generics
+from .serializers import ProfileSerializer
+from .serializers import PostSerializer
+from .serializers import PostCreateSerializer
+from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 
-from rest_framework.views    import APIView
-from rest_framework.response import Response
-from rest_framework          import status
-from rest_framework.parsers  import MultiPartParser, FormParser, JSONParser
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
- 
-from .serializers  import ProfileSerializer, PostSerializer, PostCreateSerializer
+class ProfileListAPIView(generics.ListAPIView):
+    """Return a serialized list of profiles"""
+    queryset           = Profile.objects.all()
+    serializer_class   = ProfileSerializer
+    permission_classes = [AllowAny]             # allow everyone to view all profiles
+    
+class ProfileRetrieveAPIView(generics.RetrieveAPIView):
+    """Return a single profile, serialized"""
+    queryset = Profile.objects.all() # RetrieveAPIView will internally filter
+                                     # this with it's get_object() method
+    serializer_class   = ProfileSerializer
+    permission_classes = [AllowAny]         # All profiles are public
 
-from rest_framework.permissions  import IsAuthenticatedOrReadOnly, IsAuthenticated
-from rest_framework.authentication import TokenAuthentication, SessionAuthentication
-from rest_framework.authtoken.models import Token
+class ProfilePostsListAPIView(generics.ListAPIView):
+    """Return a list of posts from a profile"""
+    serializer_class   = PostSerializer
+    permission_classes = [AllowAny]
+    
+    def get_queryset(self):         # Because it's not a RetrieveView,
+        pk = self.kwargs['pk']      # it needs a get_queryset method
+        return Post.objects.filter(profile__pk=pk)
+    
+class ProfilePostCreateAPIView(generics.CreateAPIView):
+    """API create a post from a caption"""
+    serializer_class   = PostCreateSerializer  # Need a different serializer
+                                               # because posts are only made
+    permission_classes = [IsAuthenticated]     # via caption, so the fields
+                                               # must be different than PostSerializer
+    def perform_create(self, serializer):
+        profile = self.request.user.profile
+        serializer.save(profile=profile)
 
-from django.shortcuts            import get_object_or_404
-from django.contrib.auth        import authenticate
- 
-TOKEN_AUTH  = [TokenAuthentication, SessionAuthentication]
-PUBLIC_PERM = [IsAuthenticatedOrReadOnly]
-AUTH_PERM   = [IsAuthenticated]
- 
- 
-# ── Login / Logout ────────────────────────────────────────────────────────────
- 
-class LoginAPIView(APIView):
-    """
-    POST /api/login/
-    { "username": "...", "password": "..." }
-    → { "token": "...", "profile_id": 1, "username": "..." }
-    """
-    authentication_classes = []
-    permission_classes     = []
- 
-    def post(self, request):
-        username = request.data.get("username", "").strip()
-        password = request.data.get("password", "")
- 
-        if not username or not password:
-            return Response(
-                {"detail": "username and password are required."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
- 
-        user = authenticate(request, username=username, password=password)
-        if user is None:
-            return Response(
-                {"detail": "Invalid credentials."},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
- 
-        token, _ = Token.objects.get_or_create(user=user)
- 
-        try:
-            profile_id = user.profile.pk
-        except Exception:
-            profile_id = None
- 
-        return Response({
-            "token":      token.key,
-            "profile_id": profile_id,
-            "username":   user.username,
-        })
- 
- 
-class LogoutAPIView(APIView):
-    """
-    POST /api/logout/
-    Header: Authorization: Token <key>
-    """
-    authentication_classes = TOKEN_AUTH
-    permission_classes     = AUTH_PERM
- 
-    def post(self, request):
-        request.user.auth_token.delete()
-        return Response({"detail": "Logged out."})
- 
- 
-# ── Profiles ──────────────────────────────────────────────────────────────────
- 
-class ProfileListAPIView(APIView):
-    """GET /api/profiles/  — list all; ?search=<term> to filter"""
-    authentication_classes = TOKEN_AUTH
-    permission_classes     = PUBLIC_PERM
- 
-    def get(self, request):
-        qs   = Profile.objects.all()
-        term = request.query_params.get("search", "").strip()
-        if term:
-            from django.db.models import Q
-            qs = qs.filter(
-                Q(username__icontains=term) |
-                Q(display_name__icontains=term) |
-                Q(bio__icontains=term)
-            ).distinct()
-        return Response(ProfileSerializer(qs, many=True, context={"request": request}).data)
- 
- 
-class ProfileDetailAPIView(APIView):
-    """GET /api/profiles/<pk>/"""
-    authentication_classes = TOKEN_AUTH
-    permission_classes     = PUBLIC_PERM
- 
-    def get(self, request, pk):
-        profile = get_object_or_404(Profile, pk=pk)
-        return Response(ProfileSerializer(profile, context={"request": request}).data)
- 
- 
-# ── Posts ─────────────────────────────────────────────────────────────────────
- 
-class ProfilePostsAPIView(APIView):
-    """GET /api/profiles/<pk>/posts/"""
-    authentication_classes = TOKEN_AUTH
-    permission_classes     = PUBLIC_PERM
- 
-    def get(self, request, pk):
-        profile = get_object_or_404(Profile, pk=pk)
-        posts   = Post.objects.filter(profile=profile).order_by("-timestamp")
-        return Response(PostSerializer(posts, many=True, context={"request": request}).data)
- 
- 
-class ProfilePostCreateAPIView(APIView):
-    """POST /api/profiles/<pk>/posts/create/  (multipart — caption + media files)"""
-    authentication_classes = TOKEN_AUTH
-    permission_classes     = AUTH_PERM
-    parser_classes         = [MultiPartParser, FormParser, JSONParser]
- 
-    def post(self, request, pk):
-        profile = get_object_or_404(Profile, pk=pk)
- 
-        if profile.user != request.user:
-            return Response(
-                {"detail": "You may only create posts for your own profile."},
-                status=status.HTTP_403_FORBIDDEN,
-            )
- 
-        serializer = PostCreateSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
- 
-        post = serializer.save(profile=profile)
-        for file in request.FILES.getlist("media"):
-            Photo.objects.create(media=file, post=post)
- 
-        return Response(
-            PostSerializer(post, context={"request": request}).data,
-            status=status.HTTP_201_CREATED,
-        )
- 
- 
-# ── Feed ──────────────────────────────────────────────────────────────────────
- 
-class ProfileFeedAPIView(APIView):
-    """GET /api/profiles/<pk>/feed/  — requires auth; must be own profile"""
-    authentication_classes = TOKEN_AUTH
-    permission_classes     = AUTH_PERM
- 
-    def get(self, request, pk):
-        profile = get_object_or_404(Profile, pk=pk)
- 
-        if profile.user != request.user:
-            return Response(
-                {"detail": "You may only view your own feed."},
-                status=status.HTTP_403_FORBIDDEN,
-            )
- 
-        posts = profile.get_feed_posts
-        return Response(PostSerializer(posts, many=True, context={"request": request}).data)
+class ProfileFeedListAPIView(generics.ListAPIView):
+    """Return a feed of posts for a profile"""
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]    # Only the logged-in user cans 
+                                              # see their own feeds
+    def get_queryset(self):
+        profile = self.request.user.profile
+        return profile.get_feed_posts
