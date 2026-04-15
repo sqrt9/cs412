@@ -25,9 +25,19 @@ from django.db.models import Q
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login
+from django.contrib.auth import login, logout, authenticate
 from .models import Profile, Post, Photo, Follow, Like
 from .forms import *
+
+from rest_framework import generics
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .serializers import ProfileSerializer
+from .serializers import PostSerializer
+from .serializers import PostCreateSerializer
+from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
 
 class CreateProfileView(CreateView):
     """
@@ -129,6 +139,7 @@ class PostFeedListView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['profile'] = self.profile
         return context
+    
 
 class ShowFollowersDetailView(DetailView):
     """
@@ -137,6 +148,7 @@ class ShowFollowersDetailView(DetailView):
     model               = Profile
     context_object_name = "profile"
     template_name       = "mini_insta/followers.html"
+    
 
 class ShowFollowingDetailView(DetailView):
     """
@@ -169,7 +181,6 @@ class DeletePostView(LoginRequiredMixin, DeleteView):
         return reverse('show_profile', kwargs={'pk': self.object.profile.pk})
 
 
-
 class UpdateProfileView(LoginRequiredMixin, UpdateView):
     """
     View in which to update profile information from.
@@ -193,6 +204,7 @@ class ProfileListView(ListView):
     model               = Profile
     template_name       = "mini_insta/show_all_profiles.html"
     context_object_name = "profiles"
+    
 
 class ProfileDetailView(DetailView):
     """
@@ -201,6 +213,7 @@ class ProfileDetailView(DetailView):
     model               = Profile
     template_name       = "mini_insta/show_profile.html"
     context_object_name = "profile"
+    
 
 class PostDetailView(DetailView):
     """
@@ -209,6 +222,7 @@ class PostDetailView(DetailView):
     model               = Post
     template_name       = "mini_insta/post.html"
     context_object_name = "post"
+    
 
 class CreatePostView(LoginRequiredMixin, CreateView):
     """
@@ -269,6 +283,7 @@ class DeleteFollowView(LoginRequiredMixin, TemplateView):
         ).delete()
         return redirect("show_profile", pk=followee.pk)
     
+    
 class LikeView(LoginRequiredMixin, TemplateView):
     """Like a post"""
     def dispatch(self, request, *args, **kwargs):
@@ -281,6 +296,7 @@ class LikeView(LoginRequiredMixin, TemplateView):
         )
         return redirect("show_post", pk=post.pk)
     
+    
 class DeleteLikeView(LoginRequiredMixin, TemplateView):
     """Unlike a post"""
     def dispatch(self, request, *args, **kwargs):
@@ -291,13 +307,7 @@ class DeleteLikeView(LoginRequiredMixin, TemplateView):
             profile=profile
         ).delete()
         return redirect("show_post", pk=post.pk)
-
-from rest_framework import generics
-from .serializers import ProfileSerializer
-from .serializers import PostSerializer
-from .serializers import PostCreateSerializer
-from rest_framework.permissions import AllowAny
-from rest_framework.permissions import IsAuthenticated
+    
 
 class ProfileListAPIView(generics.ListAPIView):
     """Return a serialized list of profiles"""
@@ -305,12 +315,14 @@ class ProfileListAPIView(generics.ListAPIView):
     serializer_class   = ProfileSerializer
     permission_classes = [AllowAny]             # allow everyone to view all profiles
     
+    
 class ProfileRetrieveAPIView(generics.RetrieveAPIView):
     """Return a single profile, serialized"""
     queryset = Profile.objects.all() # RetrieveAPIView will internally filter
                                      # this with it's get_object() method
     serializer_class   = ProfileSerializer
     permission_classes = [AllowAny]         # All profiles are public
+    
 
 class ProfilePostsListAPIView(generics.ListAPIView):
     """Return a list of posts from a profile"""
@@ -321,8 +333,10 @@ class ProfilePostsListAPIView(generics.ListAPIView):
         pk = self.kwargs['pk']      # it needs a get_queryset method
         return Post.objects.filter(profile__pk=pk)
     
+    
 class ProfilePostCreateAPIView(generics.CreateAPIView):
     """API create a post from a caption"""
+    authentication_classes = [TokenAuthentication]
     serializer_class   = PostCreateSerializer  # Need a different serializer
                                                # because posts are only made
     permission_classes = [IsAuthenticated]     # via caption, so the fields
@@ -330,12 +344,41 @@ class ProfilePostCreateAPIView(generics.CreateAPIView):
     def perform_create(self, serializer):
         profile = self.request.user.profile
         serializer.save(profile=profile)
+        
 
 class ProfileFeedListAPIView(generics.ListAPIView):
     """Return a feed of posts for a profile"""
+    authentication_classes = [TokenAuthentication]
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]    # Only the logged-in user cans 
                                               # see their own feeds
     def get_queryset(self):
         profile = self.request.user.profile
         return profile.get_feed_posts
+    
+
+from rest_framework.authtoken.models import Token
+
+class LoginAPIView(APIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
+    def post(self, request):
+        user = authenticate(
+            username=request.data.get('username'),
+            password=request.data.get('password')
+        )
+        if not user:
+            return Response({"detail": "Invalid credentials"}, status=400)
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response({
+            "token": token.key,
+            "profile_id": user.id
+        })
+
+class LogoutAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes     = [IsAuthenticated]
+    
+    def post(self, request):
+        logout(request)
+        return Response({"detail": "Logged out"})

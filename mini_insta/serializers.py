@@ -30,4 +30,15 @@ class PostSerializer(serializers.ModelSerializer):
 class PostCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Post
-        fields = ["caption"]
+        fields = ["caption", "photo_upload"]
+        
+    photo_upload = serializers.ImageField(write_only=True, required=False)
+    
+    def create(self, data):
+        photo_data = data.pop('upload_photo', None)
+        post = Post.objects.create(**data)
+        
+        if photo_data:
+            Photo.objects.create(post=post, media=photo_data)
+        
+        return post
