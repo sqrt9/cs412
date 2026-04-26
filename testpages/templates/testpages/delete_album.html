@@ -1,0 +1,10 @@
+{% extends 'testpages/base.html' %}
+{% block content %}
+
+<form method="POST">
+    {% csrf_token %}
+    <p>are you sure you want to delete "{{ album.name }}"?</p>
+    <input type="submit" value="confirm">
+</form>
+
+{% endblock %}

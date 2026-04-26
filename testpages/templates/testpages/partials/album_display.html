@@ -1,0 +1,14 @@
+<h2>{{ album.name }}</h2>
+
+{% if album.cover %}
+    <img src="{{ album.cover }}">
+{% endif %}
+
+<p>{{ album.artist }}</p>
+
+{% for track in album.tracks.all.order_by('disc_number', 'track_number') %}
+    <div>
+        <p>{{ track.tags.title }}</p>
+        <p>{{ track.tags.artist }}</p>
+    </div>
+{% endfor %}

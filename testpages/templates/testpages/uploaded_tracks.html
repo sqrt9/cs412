@@ -1,0 +1,6 @@
+{% extends 'testpages/base.html' %}
+{% block content %}
+{% for album in albums %}
+    {% include 'testpages/partials/album_display.html' with album=album %}
+{% endfor %}
+{% endblock %}
