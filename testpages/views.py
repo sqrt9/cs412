@@ -2,6 +2,7 @@ from django.http import HttpRequest
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render
 from django.views.generic import CreateView
 from django.views.generic import DetailView
@@ -12,6 +13,7 @@ from .models import *
 from .forms import *
 from django.contrib.auth import login
 from django.urls import reverse
+from django.shortcuts import redirect
 
 
 # Create your views here.
@@ -19,7 +21,11 @@ from django.urls import reverse
 context = {}
 
 def base(request : HttpRequest):
-    return render(request, template_name="testpages/base.html", context=context)
+    context = {}
+    if request.user.username:
+        profile_url = reverse('profile', kwargs={'username': request.user.username})
+        context["profile_url"] = profile_url
+    return render(request, template_name="testpages/links.html", context=context)
 
 def grid(request: HttpRequest):
     return render(request, "testpages/grid.html", context)
@@ -34,12 +40,16 @@ class CreateAccountView(CreateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["account_form"] = XUserCreationForm()
+        context["account_form"] = kwargs.get("account_form", UserCreationForm())
         return context
     
     def form_valid(self, form):
-        user_form = UserCreationForm(self.request.POST)
-        user = user_form.save()
+        account_form = UserCreationForm(self.request.POST)
+        if not account_form.is_valid():
+            return self.render_to_response(
+                self.get_context_data(account_form=account_form)
+            )
+        user = account_form.save()
         login(
             request = self.request,
             user    = user,
@@ -47,6 +57,9 @@ class CreateAccountView(CreateView):
         )
         form.instance.user = user
         return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse('profile', kwargs={'username': self.object.user.username})
 
 
 class TrackUploadView(LoginRequiredMixin, CreateView):
@@ -56,18 +69,44 @@ class TrackUploadView(LoginRequiredMixin, CreateView):
     
     def form_valid(self, form):
         files = form.cleaned_data["file_field"]
-        is_private = True if self.request.POST.get("private") else False
+    
+        is_private  = True if self.request.POST.get("private") else False
+        from_file   = True if self.request.POST.get("from_file") else False
+        search      = True if self.request.POST.get("search") else False
+        form_album  = self.request.POST.get("album_name", None)
+        form_artist = self.request.POST.get("artist", None)
         
-        self.updated = set()
+        
+        update_albums, update_artists = set()
+        track_list = []
+        
         for f in files:
             track = Track.objects.create(track_file=f)
-            track.populate(user=self.request.user.django_user, private=is_private)
-            self.updated.add(track.album.pk)
+            updated_album, updated_artist = track.populate(user=self.request.user.django_user,
+                                                           private=is_private,
+                                                           from_file=from_file,
+                                                           search=search)
+            if search:
+                update_albums.add(updated_album)
+                update_artists.add(updated_artist)
+                track_list.append(track.track_title)
+        
+        if search:
+            # number, disk number, album, artists and cover
+            # are unset if returning from populate using only search
+            # at this point. 
+
+        
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
         pks = ','.join(map(str, self.updated))
         return reverse("uploaded_tracks") + f'?albums={pks}'
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.pop('instance', None)
+        return kwargs
 
 
 class UploadedTracksListView(LoginRequiredMixin, ListView):
@@ -76,8 +115,10 @@ class UploadedTracksListView(LoginRequiredMixin, ListView):
     context_object_name = "albums"
     
     def get_queryset(self):
-        pks = self.request.GET.get('albums', '').split(',')
-        return Album.objects.filter(pk__in=pks)
+        pks = self.request.GET.get('albums', '')
+        if not pks:
+            return None
+        return Album.objects.filter(pk__in=pks.split(','))
 
 
 class ProfileAlbumsListView(LoginRequiredMixin, ListView):
@@ -127,9 +168,8 @@ class ProfileDetailView(LoginRequiredMixin, DetailView):
     model = Profile
     template_name = "testpages/profile.html"
     context_object_name = "profile"
-
     def get_object(self):
-        return get_object_or_404(Profile, username=self.kwargs['username'])
+        return get_object_or_404(Profile, user__username=self.kwargs['username'])
 
 class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     model = Profile

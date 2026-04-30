@@ -2,10 +2,99 @@
 
 {% block content %}
 
-<form method="POST" enctype="multipart/form-data">
+<form method="POST" enctype="multipart/form-data" id="upload-form">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Upload</button>
+    <ul id="selected-files-list"></ul>
+    
+    <input type="checkbox" name="private" id="private-checkbox"> 
+    <label for="private-checkbox">private?</label>
+    
+    <input type="checkbox" name="from_file" id="from-file-checkbox">
+    <label for="from-file-checkbox">tag from files?</label>
+
+    <input type="checkbox" name="search" id="search-checkbox">
+    <label for="search-checkbox">tag from internet?</label>
+
+    <div id="search-fields" style="display: none;">
+        <p>if also using the file data, leave blank to determine this for each track.</p>
+        <input type="text" name="album_name" id="album-name" placeholder="album name">
+        <input type="text" name="artist" id="artist" placeholder="artist">
+        <p id="form-error" style="display: none;"></p>
+    </div>
+<p>
+    <button type="button" id="clear-files-btn" style="display: none;">clear</button>
+</p>
+<p>
+    <button type="submit">upload</button>
+</p>
 </form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('id_file_field');
+        const fileListContainer = document.getElementById('selected-files-list');
+        const clearBtn = document.getElementById('clear-files-btn');
+
+        if (fileInput) {
+            fileInput.addEventListener('change', function() {
+                fileListContainer.innerHTML = '';
+                
+                if (this.files.length > 0) {
+                    clearBtn.style.display = 'inline-block';
+                    
+                    for (let i = 0; i < this.files.length; i++) {
+                        let li = document.createElement('li');
+                        li.textContent = this.files[i].name;
+                        fileListContainer.appendChild(li);
+                    }
+                } else {
+                    clearBtn.style.display = 'none';
+                }
+            });
+            clearBtn.addEventListener('click', function() {
+                fileInput.value = '';
+                fileListContainer.innerHTML = '';
+                clearBtn.style.display = 'none';
+            });
+        }
+    });
+</script>
+
+<script>
+    const searchCheckbox = document.getElementById('search-checkbox');
+    const fromFileCheckbox = document.getElementById('from-file-checkbox');
+    const searchFields = document.getElementById('search-fields');
+    const albumName = document.getElementById('album-name');
+    const artist = document.getElementById('artist');
+    const formError = document.getElementById('form-error');
+
+    searchCheckbox.addEventListener('change', function () {
+        searchFields.style.display = this.checked ? 'block' : 'none';
+    });
+
+    document.getElementById('upload-form').addEventListener('submit', function (e) {
+        const fromFile = fromFileCheckbox.checked;
+        const search = searchCheckbox.checked;
+
+        formError.style.display = 'none';
+        formError.textContent = '';
+
+        if (!fromFile && !search) {
+            e.preventDefault();
+            formError.textContent = 'select at least one of "determine from files" or "tag from internet".';
+            formError.style.display = 'block';
+            return;
+        }
+
+        if (search && !fromFile) {
+            if (!albumName.value.trim() || !artist.value.trim()) {
+                e.preventDefault();
+                formError.textContent = 'album name and artist are required when tagging only from the internet.';
+                formError.style.display = 'block';
+            }
+        }
+    });
+</script>
 
 {% endblock %}

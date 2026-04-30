@@ -15,7 +15,7 @@ urlpatterns = [
     
     path("create_account/", views.CreateAccountView.as_view(), name="create_account"),
     path("login/", auth_views.LoginView.as_view(template_name="testpages/login.html"), name="login"),
-    path("logout/", auth_views.LogoutView.as_view(next_page="logged-out.html"), name="logout"),
+    path("logout/", auth_views.LogoutView.as_view(next_page="logged-out"), name="logout"),
     path("logged-out/", TemplateView.as_view(template_name="testpages/logged_out.html"), name="logged-out"),
     path("upload_tracks/", views.TrackUploadView.as_view(), name="upload_tracks"),
     path("uploaded_tracks/", views.UploadedTracksListView.as_view(), name="uploaded_tracks"),

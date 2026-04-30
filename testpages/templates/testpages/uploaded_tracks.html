@@ -1,6 +1,11 @@
 {% extends 'testpages/base.html' %}
 {% block content %}
+{% if albums %}
 {% for album in albums %}
     {% include 'testpages/partials/album_display.html' with album=album %}
 {% endfor %}
+{% else %}
+Update some albums to see them here
+{% endif %}
+
 {% endblock %}

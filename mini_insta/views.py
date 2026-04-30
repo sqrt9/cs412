@@ -56,7 +56,9 @@ class CreateProfileView(CreateView):
 
     def form_valid(self, form):
         user_form = UserCreationForm(self.request.POST)
+        profile_form = CreateProfileForm(self.request.POST)
         user = user_form.save()
+        profile = profile_form.save()
         login(
             self.request,
             user,

@@ -1,0 +1,38 @@
+{% extends 'testpages/base.html' %}
+
+{% block content %}
+{% if request.user.username %}
+<p>
+    <a href="{{ profile_url }}">{{request.user.username}}</a>
+    <p>
+    <form method="POST" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+</p>
+</p>
+{% else %}
+<p>
+    logged out
+</p>
+{% endif%} 
+<p>
+    <a href="{% url 'login' %}">login.html</a>
+</p>
+<p>
+    <a href="{% url 'create_account' %}">create_account.html</a>
+</p>
+<p>
+    <a href="{% url 'upload_tracks' %}">upload_tracks.html</a>
+</p>
+<p>
+    <a href="{% url 'uploaded_tracks' %}">uploaded_tracks.html</a>
+</p>
+<p>
+    <a href="{% url 'my_albums' %}">my_albums.html</a>
+</p>
+<p>
+    <a href="{% url 'logged-out' %}">logged_out.html</a>
+</p>
+
+{% endblock %}

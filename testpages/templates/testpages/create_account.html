@@ -3,8 +3,9 @@
 {% block content %}
 
 <h1>create account</h1>
-
-<form method="POST">
+{{ form.errors }}
+{{ account_form.errors }}
+<form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     {{ account_form.as_p }}
     {{ form.as_p }}

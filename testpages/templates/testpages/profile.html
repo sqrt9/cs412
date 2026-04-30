@@ -1,0 +1,8 @@
+{% extends 'testpages/base.html' %}
+
+{% block content %}
+<h1>{{profile.display_name}}</h1>
+<p>{{profile.user.username}}</p>
+<img src="{{ profile.profile_icon.url }}" alt="icon">
+{{profile.profile_description}}
+{% endblock %}

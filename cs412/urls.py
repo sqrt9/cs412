@@ -28,12 +28,12 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("quotes/", include("quotes.urls")),
-    path("restaurant/", include("restaurant.urls")),
+    # path("quotes/", include("quotes.urls")),
+    # path("restaurant/", include("restaurant.urls")),
     path("testpages/", include("testpages.urls")),
-    path("mini_insta/", include("mini_insta.urls")),
-    path("voter_analytics/", include("voter_analytics.urls")),
-    path("dadjokes/", include("dadjokes.urls"))
+    # path("mini_insta/", include("mini_insta.urls")),
+    # path("voter_analytics/", include("voter_analytics.urls")),
+    # path("dadjokes/", include("dadjokes.urls"))
     ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
