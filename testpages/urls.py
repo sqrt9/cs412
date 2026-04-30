@@ -24,12 +24,10 @@ urlpatterns = [
     path("my_albums/album/<int:pk>/delete/", views.DeleteAlbumView.as_view(), name="delete_album"),
     path("my_artists/", views.ProfileArtistsListView.as_view(), name="my_artists"),
     path("my_artists/artist/<int:pk>/", views.ProfileSingleArtistDetailView.as_view(), name="my_artist"),
-    path("users/<str:username>/", views.ProfileDetailView.as_view(), name="profile"),
     path("users/update_profile/", views.ProfileUpdateView.as_view(), name="update_profile"),
-    # search
-    # all page
-    # update view album
-    # automatic tagging
+    path("users/<str:username>/", views.ProfileDetailView.as_view(), name="profile"),
+    path('search/', views.search_view, name='search'),
+    path("my_albums/album/<int:pk>/delete/", views.DeleteAlbumView.as_view(), name="delete_album"),
     
 
     ]

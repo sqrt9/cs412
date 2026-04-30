@@ -1,14 +1,47 @@
-<h2>{{ album.name }}</h2>
-
-{% if album.cover %}
-    <img src="{{ album.cover }}">
-{% endif %}
-
-<p>{{ album.artist }}</p>
-
-{% for track in album.tracks.all.order_by('disc_number', 'track_number') %}
-    <div>
-        <p>{{ track.tags.title }}</p>
-        <p>{{ track.tags.artist }}</p>
+<div class="album-info-container">
+    <div class="album-info">
+        {% if album.cover %}
+            <img class="album-cover" src="{{ album.cover }}" alt="Cover">
+        {% else %}
+            <div class="album-cover fallback-cover"></div> 
+        {% endif %}
+    
+        <div class="album-details">
+            <div>
+                <h2 class="album-title">{{ album.name }}</h2>
+                <p class="album-artist">{{ album.artist.name }}</p>
+            </div>
+            
+            <p class="album-uploader">
+                uploaded by: {{ album.uploader.username }}
+                {% if user.is_authenticated and album.uploader.user == user %}
+                    | <a href="{% url 'delete_album' pk=album.pk %}" style="color: #d9534f; text-decoration: none; font-weight: bold; margin-left: 5px;">Delete Album</a>
+                {% endif %}
+            </p>
+        </div>
     </div>
-{% endfor %}
+</div>
+
+{% include 'testpages/partials/player.html' %}
+
+<div class="track-list-container">
+    <div class="track-list">
+        {% for track in album.tracks.all %}
+            <div class="track-row">
+                <span class="track-number">{{ track.track_number }}&nbsp;</span>
+                <button class="track-play-btn" 
+                        data-url="{{ track.track_file.url }}" 
+                        data-title="{{ track.track_title }}" 
+                        data-artist="{{ track.artist.name }}">
+                    ▶
+                </button>
+                
+                <span class="track-name">{{ track.track_title }}</span>
+                <span class="track-spacer">&nbsp;&nbsp;</span>
+                <span class="track-artist">{{ track.artist.name }}</span>
+                
+                <a href="{{ track.track_file.url }}" download class="track-download">download</a>
+            </div>
+        {% endfor %}
+    </div>
+</div>

@@ -1,17 +1,60 @@
 {% load static %}
 
 <!DOCTYPE html>
-
-<html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}django music{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'testpages/css/style.css' %}">
-    <title>Test</title>
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
   </head>
   <body>
+    
+    <nav class="navbar">
+        <a href="{% url 'root' %}" class="navbar-brand">django music</a>
+<div class="navbar-links">
+    {% if user.is_authenticated %}
+        <a href="{% url 'my_albums' %}">my albums</a>
+        <a href="{% url 'my_artists' %}">my artists</a>
+        <a href="{% url 'upload_tracks' %}">upload</a>
+        <a href="{% url 'profile' username=user.username %}">profile</a>
+        <form action="{% url 'logout' %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.9rem;">log out</button>
+        </form>
+    {% else %}
+        <a href="{% url 'login' %}">log in</a>
+        <a href="{% url 'create_account' %}" class="btn">sign up</a>
+    {% endif %}
+
+    <form action="{% url 'search' %}" method="get" style="display: flex; gap: 5px; margin-left: 10px;">
+        <input type="text" name="q" placeholder="search" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
+        <button type="submit" class="btn" style="padding: 5px 15px;">search</button>
+    </form>
+</div>
+    </nav>
+
     <main>
       {% block content %}
+
+          {% if is_root %}
+              <div class="grid-container" style="margin-top: 40px;">
+                  <h2 style="margin-bottom: 25px;">public albums</h2>
+                  
+                  {% include 'testpages/partials/album_grid.html' with albums=public_albums %}
+                  
+              </div>
+          {% endif %}
+
       {% endblock %}
     </main>
+
+    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const players = Plyr.setup('.custom-player');
+        });
+    </script>
   </body>
 </html>
-

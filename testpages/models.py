@@ -11,8 +11,6 @@ from time import sleep
 from pathlib import Path
 
 # Create your models here.
-# Basic testing models
-# Data Models
 
 class Profile(models.Model):
     """Site user model. Accompanied with a django user"""
@@ -75,7 +73,7 @@ class Album(models.Model):
     
     @property
     def cover(self):
-        first = self.tracks.order_by('disc_number', 'track_number').first()
+        first = self.tracks.order_by('disk_number', 'track_number').first()
         if first and first.track_cover:
             return first.track_cover.url
         return None
@@ -139,10 +137,6 @@ class Track(models.Model):
                                     blank=True
                                     )
     
-
-
-    def relate_track(self):
-        pass
     
     def populate(self,
                  user    = None,
@@ -160,15 +154,18 @@ class Track(models.Model):
               create these models if they dont exist yet
         """
         
-        update_album, update_artist = None
+        update_album = None
             # populate returns a set of pks to albums that were updated.
             # if using the search function, then requests should be made
             # for each one of these albums after the return
         
+        self.track_length = int(MP3(self.track_file.path).info.length * 1000)
+        
         if from_file:
             tags            = dict(EasyID3(self.track_file.path).items())
-            id3_album       = tags.get("album", ["Unknown Album"])[0]
-            id3_albumartist = tags.get("albumartist", ["Unknown Artist"])[0]
+            id3_album       = tags.get("album", ["My Songs"])[0]
+            id3_albumartist = tags.get("albumartist", ["Various Artists"])[0]
+            id3_title       = tags.get("title", ["Untitled"])[0]
             id3_artists     = tags.get("artist", [])
             id3_cover       = ID3(self.track_file.path).get('APIC:')
                                     # APIC - Attached PICture
@@ -187,8 +184,10 @@ class Track(models.Model):
 
             id3_track  = tags.get("tracknumber", ["0"])[0].split('/')[0]
             id3_disc   = tags.get("discnumber",  ["1"])[0].split('/')[0]
-            self.track_number = int(id3_track) if id3_track.isdigit() else None
-            self.disc_number  = int(id3_disc)  if id3_disc.isdigit()  else None
+            self.track_number = int(id3_track) if id3_track.isdigit() else 0
+            self.track_title  = str(id3_title)
+            self.disk_number  = int(id3_disc)  if id3_disc.isdigit()  else 1
+            
         
             for f in id3_artists:
                 # don't mark a feature if they're already the primary artist
@@ -207,52 +206,17 @@ class Track(models.Model):
                     'is_official': False if user else True
                 })
             
-            if search:
-                update_album = album.pk
-                update_artist = artist.pk
-                
+            update_album = album
             self.album  = album
             self.artist = artist
             
         elif search:
-            self.track_length = int(MP3(self.track_file.path).info.length * 1000)
             self.track_title  = Path(self.track_file.name).stem
             # if going purely on search, length and filename are all
             # that we can use to find this track online. match this later
 
         self.save()
-        return update_album, update_artist if search else None
-
-        
-
-
-        
-    def tag_tracks_from_info(album, artist, track_list):
-        """
-        Write to a track model's fields using internet
-        search based on user-provided info.
-        track_list := [("title", Track) ... ]
-        """
-        
-        mbid = get_mbid_from_string(album, artist)
-        on_album = Album.match(mbid=mbid, album_name=album, artist_name=artist)
-        
-        if mbid:
-            sleep(1)
-            track_info = get_track_list_from_mbid(mbid)
-            for track in track_list:
-                title = track[0]
-                track = track[1]
-                for mb_track in track_info:
-                    # if there's a 75% partial match on the title, and the duration is
-                    # within 15 seconds, this is likely the same track
-                    if fuzz.token_sort_ratio(mb_track, title) >= 70 and \
-                        abs((track.track_length - track_info[mb_track][2])) <= 15000:
-                            
-                        track.track_title = mb_track
-                        track.track_number = int(track_info[mb_track][0])
-                        track.disk_number = int(track_info[mb_track][1])
-                        break
+        return update_album
 
 
     def write_caa_image_content(self, caa_cover_link):
@@ -261,15 +225,22 @@ class Track(models.Model):
         Art Archive image, and return them.
         """
         try:
-            res = requests.get(caa_cover_link)
+            headers = {"User-Agent": "MyDjangoMusicApp/1.0 ( hpt@bu.edu )"}
+            res = requests.get(caa_cover_link, headers=headers)
+            print(f"CAA image response: {res.status_code}, content-type: {res.headers.get('Content-Type')}")
             if res.status_code == 200:
+                content_type    = res.headers.get('Content-Type', 'image/jpeg')
+                extension       = content_type.split('/')[-1].split(';')[0].strip()
                 caa_cover_bytes = res.content
+                print(f"cover bytes length: {len(caa_cover_bytes)}")
                 self.track_cover = ContentFile(
                         caa_cover_bytes,
-                        name = f'{self.pk}_cover.jpg'
+                        name = f'{self.pk}_cover.{extension}'
                         )
+            else:
+                print(f"CAA image fetch failed: {res.status_code}")
         except Exception as e:
-            print(e)
+            print(f"write_caa_image_content error: {e}")
             return None
 
 
@@ -277,6 +248,123 @@ class Track(models.Model):
     def url(self):
         """Online url serving this file"""
         return self.track_file.url
+    
+
+def tag_tracks_from_info(album, artist, track_list, user, private):
+    """
+    Write to a track model's fields using internet
+    search based on user-provided info.
+    track_list := [("title", Track) ... ]
+    """
+    
+    mbid = get_mbid_from_string(album, artist)
+    by_artist, _ = Artist.objects.get_or_create(name=artist)
+    on_album = Album.match(mbid=mbid, album_name=album, artist_name=artist)
+    
+    if on_album:
+        print("tracks on album", on_album.name)
+        if mbid and not on_album.mbid:
+            on_album.mbid = mbid
+            on_album.save()
+        
+        for title, track in track_list:
+            track.album = on_album
+            track.artist = by_artist
+            track.save()
+            
+    elif mbid:
+        print("not on an album, but we have info about it")
+        track_album, _  = Album.objects.get_or_create(
+                                                name     = album,
+                                                artist   = by_artist,
+                                                mbid     = mbid,
+                                                defaults = {
+                                                        'uploader': user,
+                                                        'is_private': private
+                                                    })
+        sleep(1)
+        track_info, mb_title, mb_artist, mb_rg_mbid = get_track_list_from_mbid(mbid)
+        if not track_info:
+            print("got nothing")
+            return
+
+        album_name  = mb_title  or album
+        artist_name = mb_artist or artist
+        print(f"MB album: {album_name}, MB artist: {artist_name}")
+
+        track_album.name = album_name
+        track_album.save()
+
+        by_artist.name = artist_name
+        by_artist.save()
+
+        # try the specific release first, fall back to release group
+        caa_image_url = get_caa_image_url(f"https://coverartarchive.org/release/{mbid}/")
+        if not caa_image_url and mb_rg_mbid:
+            print("release has no CAA art, falling back to release group")
+            caa_image_url = get_caa_image_url(f"https://coverartarchive.org/release-group/{mb_rg_mbid}/")
+        print(f"caa_image_url: {caa_image_url}")
+        n=0
+        for title, track in track_list:
+            n += 1
+            matched = False
+            for mb_track in track_info:
+                # if there's a 66% partial match on the title, and the duration is
+                # within 15 seconds, this is likely the same track
+                print("trying title ", title)
+                print(fuzz.partial_ratio(mb_track, title), "match")
+                print("difference", abs((track.track_length - track_info[mb_track][2])))
+                if fuzz.partial_ratio(mb_track, title) >= 66 and \
+                    abs((track.track_length - track_info[mb_track][2])) <= 15000:
+                        
+                    track.track_title  = mb_track
+                    track.track_number = n
+                    track.disk_number  = 0
+                    track.artist       = by_artist
+                    track.album        = track_album
+                    if caa_image_url and not track.track_cover:
+                        track.write_caa_image_content(caa_image_url)
+                    track.save()
+                    print("matched an online track")
+                    print(mb_track)
+                    print(track.track_number)
+                    print(track.disk_number)
+                    matched = True
+                    break
+
+            if not matched:
+                print("doesn't match anything on the given album")
+                track.track_number = 0
+                track.disk_number = 1
+                track.artist = by_artist # FIX: Just use the object we created at the top
+                
+                track.album, _  = Album.objects.get_or_create(
+                    name=album,
+                    artist=by_artist,
+                    defaults={
+                        'uploader': user,
+                        'is_private': private
+                    }
+                )
+                track.save()
+                    
+    else:
+        print("found nothing about this song")
+        various_artists, _ = Artist.objects.get_or_create(name="Various Artists")
+        my_songs_album, _ = Album.objects.get_or_create(
+            name="My Songs",
+            artist=various_artists,
+            defaults={
+                'uploader': user,
+                'is_private': private
+            }
+        )
+
+        for title, track in track_list:
+            track.album = my_songs_album
+            track.artist = by_artist
+            track.save()
+
 
 
 #
@@ -289,17 +377,18 @@ def get_mbid_from_string(album, artist):
     """
     Get an MBID from an album/artist pair.
     """
-    musicbrainzngs.set_useragent("test", "0.000001", contact="hpt@bu.edu")
+
     try:
+        musicbrainzngs.set_useragent("DjangoMusicApp", "1.0", contact="hpt@bu.edu")
         res = musicbrainzngs.search_releases(
             limit  = 5,
             artistname = artist,
             release = album
             ).get("release-list", [])
-        for release in res:
-            if release.get("status") == "Official":
-                mbid = release["id"]
-                return mbid if mbid else None
+        if res:
+            official = next((r for r in res if r.get("status") == "Official"), res[0])
+            mbid = official["id"]
+            return mbid
         return None
     except Exception as e:
         print(e)
@@ -311,8 +400,8 @@ def get_caaurl_from_id3(album, artist):
     a release. Find find the MBID from tags or user-provided
     info. The musicbrainz release corresponds to a link to CAA. 
     """
-    musicbrainzngs.set_useragent("test", "0.000001", contact="hpt@bu.edu")
     try:
+        musicbrainzngs.set_useragent("DjangoMusicApp", "1.0", contact="hpt@bu.edu")
         res = musicbrainzngs.search_releases(
             limit      = 5,
             artistname = artist,
@@ -330,28 +419,41 @@ def get_caaurl_from_id3(album, artist):
 def get_caa_image_url(caa_url):
     """
     Get a Cover Art Archive image url from a CAA release link.
-    Will return None if no Front : True exists
+    Falls back to the first available image if no 'front' flag exists.
     """
     try:
-        res = requests.get(caa_url)
+        headers = {"User-Agent": "MyDjangoMusicApp/1.0 ( hpt@bu.edu )"}
+        res = requests.get(caa_url, headers=headers)
+        print(f"CAA lookup: {res.status_code} for {caa_url}")
         if res.status_code == 200:
             imgs = res.json().get("images", [])
+            if not imgs:
+                return None
             for img in imgs:
                 if img.get("front"):
                     return img.get("image")
+            return imgs[0].get("image")
         return None
 
     except Exception as e:
-        print(e)
+        print(f"CAA image error: {e}")
         return None
 
 
 def get_track_list_from_mbid(mbid):
     try:
-        res = requests.get(f"https://musicbrainz.org/ws/2/release/{mbid}?inc=recordings&fmt=json")
-        mb_tracks = {}
+        headers = {"User-Agent": "MyDjangoMusicApp/1.0 ( hpt@bu.edu )"}
+        res = requests.get(f"https://musicbrainz.org/ws/2/release/{mbid}?inc=recordings&fmt=json", headers=headers)
+        mb_tracks  = {}
+        mb_title   = None
+        mb_artist  = None
+        mb_rg_mbid = None
         if res.status_code == 200:
-            media = res.json().get("media", [])
+            data       = res.json()
+            mb_title   = data.get("title", None)
+            mb_artist  = data.get("artist-credit", [{}])[0].get("artist", {}).get("name", None)
+            mb_rg_mbid = data.get("release-group", {}).get("id", None)
+            media      = data.get("media", [])
             if media:
                 for disk in range(len(media)):
                     tracks = media[disk].get("tracks", [])
@@ -360,11 +462,12 @@ def get_track_list_from_mbid(mbid):
                             title = track.get("title", None)
                             length = track.get("recording", {}).get("length", None)
                             if title:
-                                track_number = track.get("number", None)
+                                raw_number   = track.get("number", "0")
+                                digits_only  = ''.join(filter(str.isdigit, raw_number))
+                                track_number = int(digits_only) if digits_only else 0
                                 mb_tracks[title] = (track_number, disk+1, length)
-        return mb_tracks
+        return mb_tracks, mb_title, mb_artist, mb_rg_mbid
     
     except Exception as e:
         print(e)
-        return None
-    
+        return None, None, None, None

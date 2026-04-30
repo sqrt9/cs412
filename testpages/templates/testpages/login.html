@@ -1,14 +1,19 @@
 {% extends 'testpages/base.html' %}
 
+{% block title %}login{% endblock %}
+
 {% block content %}
-<h1>Login</h1>
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="hidden" name="next" value="{% url 'root' %}">
-    <button type="submit">login</button>
-</form>
-<p>
-    or <a href="{% url 'create_account' %}">register</a>
-</p>
+<div class="track-list-container">
+    <h2>login</h2>
+    <form method="POST" class="custom-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="hidden" name="next" value="{% url 'root' %}">
+        <br>
+        <button type="submit" class="btn">login</button>
+    </form>
+    <p>
+        or <a href="{% url 'create_account' %}">register</a>
+    </p>
+</div>
 {% endblock %}

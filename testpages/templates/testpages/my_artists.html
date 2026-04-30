@@ -1,0 +1,29 @@
+{% extends 'testpages/base.html' %}
+
+{% block title %}my artists{% endblock %}
+
+{% block content %}
+<div class="grid-container">
+    <br>
+    <h2>my artists</h2>
+    
+    <div class="album-grid">
+        {% for artist in artists %}
+            <a href="{% url 'my_artist' pk=artist.pk %}" class="album-card">
+
+                {% if artist.icon_url %}
+                    <img src="{{ artist.icon_url }}" class="profile-icon" alt="{{ artist.name }}">
+                {% else %}
+                    <div class="profile-icon fallback-icon"></div>
+                {% endif %}
+                
+                <h3>{{ artist.name }}</h3>
+            </a>
+        {% empty %}
+            <p style="grid-column: 1 / -1; color: #888; text-align: center; padding: 40px 0;">
+                you don't have any artists in your library yet
+            </p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

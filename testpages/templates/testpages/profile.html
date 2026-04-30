@@ -1,8 +1,30 @@
 {% extends 'testpages/base.html' %}
 
+{% block title %}{{ profile.display_name }}'s profile{% endblock %}
+
 {% block content %}
-<h1>{{profile.display_name}}</h1>
-<p>{{profile.user.username}}</p>
-<img src="{{ profile.profile_icon.url }}" alt="icon">
-{{profile.profile_description}}
+<div class="profile-container">
+    <div class="profile-header">
+        {% if profile.profile_icon %}
+            <img class="profile-icon" src="{{ profile.profile_icon.url }}" alt="{{ profile.display_name }} icon">
+        {% else %}
+            <div class="profile-icon fallback-icon"></div>
+        {% endif %}
+        
+        <div class="profile-info">
+            <h1 class="profile-display-name">{{ profile.display_name }}</h1>
+            <p class="profile-username">@{{ profile.user.username }}</p>
+            
+            <div class="profile-description">
+                <p>{{ profile.profile_description }}</p>
+            </div>
+            
+            {% if request.user == profile.user %}
+                <div style="margin-top: 20px;">
+                    <a href="{% url 'update_profile' %}" class="btn">edit profile</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -1,11 +1,15 @@
 {% extends 'testpages/base.html' %}
 
+{% block title %}logged out{% endblock %}
+
 {% block content %}
-
-<h1>Logged out</h1>
-<p>
-    <a href="{% url 'login' %}">log back in</a>
-    <a href="{% url 'root' %}">home</a>
-</p>
-
+<div class="track-list-container">
+    <h2>logged out</h2>
+    <p>you have been successfully logged out.</p>
+    <br>
+    <div style="display: flex; gap: 10px;">
+        <a href="{% url 'login' %}" class="btn">log back in</a>
+        <a href="{% url 'root' %}" class="btn btn-secondary">home</a>
+    </div>
+</div>
 {% endblock %}

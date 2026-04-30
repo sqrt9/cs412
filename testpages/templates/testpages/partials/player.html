@@ -1,0 +1,47 @@
+<div id="global-player-wrapper" class="global-player-wrapper" style="display: none;">
+    <div class="now-playing-info">
+        <strong id="np-title">Track Name</strong> - <span id="np-artist">Artist</span>
+    </div>
+    
+    <audio id="global-audio" class="custom-player" controls>
+        <source src="" type="audio/mpeg" id="global-audio-source">
+    </audio>
+</div>
+
+
+<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const globalPlayerWrapper = document.getElementById('global-player-wrapper');
+    const npTitle = document.getElementById('np-title');
+    const npArtist = document.getElementById('np-artist');
+    const player = new Plyr('#global-audio');
+
+    const playButtons = document.querySelectorAll('.track-play-btn');
+
+    playButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const url = this.getAttribute('data-url');
+            const title = this.getAttribute('data-title');
+            const artist = this.getAttribute('data-artist');
+
+            npTitle.textContent = title;
+            npArtist.textContent = artist;
+
+            globalPlayerWrapper.style.display = 'block';
+
+            player.source = {
+                type: 'audio',
+                title: title,
+                sources: [
+                    {
+                        src: url,
+                    }
+                ]
+            };
+            
+            player.play();
+        });
+    });
+});
+</script>

@@ -1,0 +1,50 @@
+{% extends 'testpages/base.html' %}
+
+{% block title %}search results for "{{ query }}"{% endblock %}
+
+{% block content %}
+<div class="grid-container">
+    <br>
+    <form action="{% url 'search' %}" method="get" class="custom-form">
+        <input type="text" name="q" placeholder="search for albums or artists" value="{{ query }}">
+        <button type="submit" class="btn">search</button>
+    </form>
+
+    <hr>
+
+    {% if query %}
+        <h2>Results for "{{ query }}"</h2>
+
+        {% if artist_results %}
+            <h3>Artists</h3>
+            <div class="album-grid">
+                {% for artist in artist_results %}
+                    <a href="{% url 'my_artist' pk=artist.pk %}" class="album-card">
+                        {% with first_album=artist.album_set.first %}
+                            {% if first_album and first_album.cover %}
+                                <img src="{{ first_album.cover }}" class="profile-icon" alt="{{ artist.name }}">
+                            {% else %}
+                                <div class="profile-icon fallback-icon"></div>
+                            {% endif %}
+                        {% endwith %}
+                        <h3>{{ artist.name }}</h3>
+                    </a>
+                {% endfor %}
+            </div>
+            <br>
+        {% endif %}
+
+        {% if album_results %}
+            <h3>Albums</h3>
+            {% include 'testpages/partials/album_grid.html' with albums=album_results %}
+        {% endif %}
+
+        {% if not album_results and not artist_results %}
+            <p>no results found for "{{ query }}".</p>
+        {% endif %}
+        
+    {% else %}
+        <p>enter a search term</p>
+    {% endif %}
+</div>
+{% endblock %}

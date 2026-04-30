@@ -1,15 +1,24 @@
 {% extends 'testpages/base.html' %}
 
+{% block title %}create account{% endblock %}
+
 {% block content %}
+<div class="track-list-container">
+    <h2>create account</h2>
 
-<h1>create account</h1>
-{{ form.errors }}
-{{ account_form.errors }}
-<form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ account_form.as_p }}
-    {{ form.as_p }}
-    <button type="submit">submit</button>
-</form>
+    {% if form.errors or account_form.errors %}
+        <div class="helptext" style="color: red;">
+            {{ form.errors }}
+            {{ account_form.errors }}
+        </div>
+    {% endif %}
 
+    <form method="POST" enctype="multipart/form-data" class="custom-form">
+        {% csrf_token %}
+        {{ account_form.as_p }}
+        {{ form.as_p }}
+        <br>
+        <button type="submit" class="btn">submit</button>
+    </form>
+</div>
 {% endblock %}

@@ -1,64 +1,89 @@
 {% extends 'testpages/base.html' %}
 
+{% block title %}Upload Tracks - Django Music App{% endblock %}
+
 {% block content %}
+<div class="track-list-container">
+    <h2>upload tracks</h2>
 
-<form method="POST" enctype="multipart/form-data" id="upload-form">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <ul id="selected-files-list"></ul>
-    
-    <input type="checkbox" name="private" id="private-checkbox"> 
-    <label for="private-checkbox">private?</label>
-    
-    <input type="checkbox" name="from_file" id="from-file-checkbox">
-    <label for="from-file-checkbox">tag from files?</label>
+    <form method="POST" enctype="multipart/form-data" id="upload-form" class="custom-form">
+        {% csrf_token %}
+        
+        {{ form.as_p }}
+        
+        <ul id="selected-files-list"></ul>
 
-    <input type="checkbox" name="search" id="search-checkbox">
-    <label for="search-checkbox">tag from internet?</label>
+        <hr>
 
-    <div id="search-fields" style="display: none;">
-        <p>if also using the file data, leave blank to determine this for each track.</p>
-        <input type="text" name="album_name" id="album-name" placeholder="album name">
-        <input type="text" name="artist" id="artist" placeholder="artist">
-        <p id="form-error" style="display: none;"></p>
-    </div>
-<p>
-    <button type="button" id="clear-files-btn" style="display: none;">clear</button>
-</p>
-<p>
-    <button type="submit">upload</button>
-</p>
-</form>
+        <p>
+            <label>
+                <input type="checkbox" name="private" id="private-checkbox"> 
+                private?
+            </label>
+        </p>
+        <p>
+            <label>
+                <input type="checkbox" name="from_file" id="from-file-checkbox">
+                determine tags from file metadata
+            </label>
+        </p>
+        <p>
+            <label>
+                <input type="checkbox" name="search" id="search-checkbox">
+                tag missing info from the internet
+            </label>
+        </p>
+
+        <div id="search-fields" hidden>
+            <p class="helptext">if also using the file data, leave blank to determine this for each track.</p>
+            <p>
+                <input type="text" name="album_name" id="album-name" placeholder="Album Name">
+            </p>
+            <p>
+                <input type="text" name="artist" id="artist" placeholder="Artist">
+            </p>
+        </div>
+
+        <p id="form-error" class="helptext" hidden></p>
+
+        <br>
+        <div style="display: flex; gap: 15px;">
+            <button type="button" id="clear-files-btn" class="btn btn-secondary" style="display: none;">clear files</button>
+            <button type="submit" class="btn">upload</button>
+        </div>
+    </form>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-        const fileInput = document.getElementById('id_file_field');
-        const fileListContainer = document.getElementById('selected-files-list');
-        const clearBtn = document.getElementById('clear-files-btn');
+    const fileInput = document.getElementById('id_file_field');
+    const fileListContainer = document.getElementById('selected-files-list');
+    const clearBtn = document.getElementById('clear-files-btn');
 
-        if (fileInput) {
-            fileInput.addEventListener('change', function() {
-                fileListContainer.innerHTML = '';
+    if (fileInput) {
+        fileInput.addEventListener('change', function() {
+            fileListContainer.innerHTML = '';
+            
+            if (this.files.length > 0) {
+                // Use display: inline-block instead of hidden to override the CSS class
+                clearBtn.style.display = 'inline-block';
                 
-                if (this.files.length > 0) {
-                    clearBtn.style.display = 'inline-block';
-                    
-                    for (let i = 0; i < this.files.length; i++) {
-                        let li = document.createElement('li');
-                        li.textContent = this.files[i].name;
-                        fileListContainer.appendChild(li);
-                    }
-                } else {
-                    clearBtn.style.display = 'none';
+                for (let i = 0; i < this.files.length; i++) {
+                    let li = document.createElement('li');
+                    li.textContent = this.files[i].name;
+                    fileListContainer.appendChild(li);
                 }
-            });
-            clearBtn.addEventListener('click', function() {
-                fileInput.value = '';
-                fileListContainer.innerHTML = '';
+            } else {
                 clearBtn.style.display = 'none';
-            });
-        }
-    });
+            }
+        });
+        clearBtn.addEventListener('click', function() {
+            fileInput.value = '';
+            fileListContainer.innerHTML = '';
+            clearBtn.style.display = 'none';
+        });
+    }
+});
 </script>
 
 <script>
@@ -70,20 +95,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const formError = document.getElementById('form-error');
 
     searchCheckbox.addEventListener('change', function () {
-        searchFields.style.display = this.checked ? 'block' : 'none';
+        searchFields.hidden = !this.checked;
     });
 
     document.getElementById('upload-form').addEventListener('submit', function (e) {
         const fromFile = fromFileCheckbox.checked;
         const search = searchCheckbox.checked;
 
-        formError.style.display = 'none';
+        formError.hidden = true;
         formError.textContent = '';
 
         if (!fromFile && !search) {
             e.preventDefault();
             formError.textContent = 'select at least one of "determine from files" or "tag from internet".';
-            formError.style.display = 'block';
+            formError.hidden = false;
             return;
         }
 
@@ -91,10 +116,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!albumName.value.trim() || !artist.value.trim()) {
                 e.preventDefault();
                 formError.textContent = 'album name and artist are required when tagging only from the internet.';
-                formError.style.display = 'block';
+                formError.hidden = false;
             }
         }
     });
 </script>
-
 {% endblock %}

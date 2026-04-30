@@ -9,6 +9,7 @@ from django.views.generic import DetailView
 from django.views.generic import ListView
 from django.views.generic import DeleteView
 from django.views.generic import UpdateView
+from django.db.models import Q
 from .models import *
 from .forms import *
 from django.contrib.auth import login
@@ -20,12 +21,21 @@ from django.shortcuts import redirect
 
 context = {}
 
+
 def base(request : HttpRequest):
     context = {}
-    if request.user.username:
+    if request.user.is_authenticated:
         profile_url = reverse('profile', kwargs={'username': request.user.username})
         context["profile_url"] = profile_url
-    return render(request, template_name="testpages/links.html", context=context)
+    
+    public_albums = Album.objects.filter(
+        Q(is_private=False) | Q(uploader__isnull=True)
+    ).distinct()
+    
+    context["public_albums"] = public_albums
+    context["is_root"] = True
+    
+    return render(request, template_name="testpages/base.html", context=context)
 
 def grid(request: HttpRequest):
     return render(request, "testpages/grid.html", context)
@@ -69,35 +79,64 @@ class TrackUploadView(LoginRequiredMixin, CreateView):
     
     def form_valid(self, form):
         files = form.cleaned_data["file_field"]
-    
+
         is_private  = True if self.request.POST.get("private") else False
         from_file   = True if self.request.POST.get("from_file") else False
         search      = True if self.request.POST.get("search") else False
         form_album  = self.request.POST.get("album_name", None)
         form_artist = self.request.POST.get("artist", None)
         
-        
-        update_albums, update_artists = set()
+        self.updated = set() 
         track_list = []
         
         for f in files:
             track = Track.objects.create(track_file=f)
-            updated_album, updated_artist = track.populate(user=self.request.user.django_user,
-                                                           private=is_private,
-                                                           from_file=from_file,
-                                                           search=search)
+            updated_album = track.populate(
+                user=self.request.user.django_user,
+                private=is_private,
+                from_file=from_file,
+                search=search
+            )
+            
+            if updated_album:
+                self.updated.add(updated_album.pk)
+            
             if search:
-                update_albums.add(updated_album)
-                update_artists.add(updated_artist)
-                track_list.append(track.track_title)
+                track_list.append((track.track_title, track))
         
         if search:
-            # number, disk number, album, artists and cover
-            # are unset if returning from populate using only search
-            # at this point. 
+            if not from_file:
+                # proceed from form info
+                tag_tracks_from_info(form_album,
+                                        form_artist,
+                                        track_list,
+                                        self.request.user.django_user,
+                                        is_private)
+            else:
+                albums_to_tracks = {}
+                for title, track in track_list:
+                    if track.album not in albums_to_tracks:
+                        albums_to_tracks[track.album] = []
+                    albums_to_tracks[track.album].append((title, track))
+                
+                for album, tracks in albums_to_tracks.items():
+                    if album.name != "My Songs" and album.artist.name != "Various Artists":
+                        tag_tracks_from_info(form_album,
+                                            form_artist,
+                                            tracks, 
+                                            self.request.user.django_user,
+                                            is_private)
+                    else:
+                        print(f"Skipping search for fallback album: {album.name}")
 
-        
+
+            for title, track in track_list:
+                track.refresh_from_db()
+                if track.album:
+                    self.updated.add(track.album.pk)
+
         return HttpResponseRedirect(self.get_success_url())
+    
 
     def get_success_url(self):
         pks = ','.join(map(str, self.updated))
@@ -128,7 +167,9 @@ class ProfileAlbumsListView(LoginRequiredMixin, ListView):
     
     def get_queryset(self):
         user = self.request.user.django_user
-        return Album.objects.filter(uploader=user)
+        return Album.objects.filter(uploader=user)\
+                            .select_related('artist')\
+                            .prefetch_related('tracks')
 
 
 class ProfileArtistsListView(LoginRequiredMixin, ListView):
@@ -138,7 +179,13 @@ class ProfileArtistsListView(LoginRequiredMixin, ListView):
     
     def get_queryset(self):
         user = self.request.user.django_user
-        return Artist.objects.filter(album__uploader=user).distinct()
+        qs = Artist.objects.filter(album__uploader=user).distinct().prefetch_related('album_set')
+        artist_list = list(qs)
+        for artist in artist_list:
+            first_album = artist.album_set.first()
+            artist.icon_url = first_album.cover if first_album else None
+            
+        return artist_list
 
 
 class ProfileSingleAlbumDetailView(LoginRequiredMixin, DetailView):
@@ -151,7 +198,11 @@ class ProfileSingleArtistDetailView(LoginRequiredMixin, DetailView):
     model = Artist
     template_name = "testpages/artist.html"
     context_object_name = "artist"
+
+    def get_queryset(self):
+        return Artist.objects.all().prefetch_related('album_set')
     
+
 class DeleteAlbumView(LoginRequiredMixin, DeleteView):
     model = Album
     template_name = "testpages/delete_album.html"
@@ -162,6 +213,9 @@ class DeleteAlbumView(LoginRequiredMixin, DeleteView):
         user = self.request.user.django_user
         album = get_object_or_404(Album, pk=pk, uploader=user)
         return album
+
+    def get_success_url(self):
+        return reverse('my_albums')
 
 
 class ProfileDetailView(LoginRequiredMixin, DetailView):
@@ -178,12 +232,28 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     context_object_name = "profile"
     
     def get_object(self):
-        return Profile.objects.get(user=self.request.user.django_user)
+        return Profile.objects.get(user=self.request.user)
 
     def get_success_url(self):
-        return reverse('profile',
-                kwargs={
-                    'username': self.request.user.django_user.username
-                    }
-                )
+        return reverse('profile', kwargs={'username': self.request.user.username})
 
+
+def search_view(request):
+    query = request.GET.get('q', '')
+    album_results = []
+    artist_results = []
+
+    if query:
+
+        album_results = Album.objects.filter(
+            Q(name__icontains=query) & (Q(is_private=False) | Q(uploader__isnull=True))
+        ).distinct()
+        
+        artist_results = Artist.objects.filter(name__icontains=query).distinct()
+
+    context = {
+        'query': query,
+        'album_results': album_results,
+        'artist_results': artist_results,
+    }
+    return render(request, 'testpages/search_results.html', context)

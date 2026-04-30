@@ -1,0 +1,28 @@
+{% extends 'testpages/base.html' %}
+
+{% block title %}{{ artist.name }}{% endblock %}
+
+{% block content %}
+<div class="grid-container">
+    <div class="profile-header" style="margin-top: 40px; margin-bottom: 40px;">
+        {% with first_album=artist.album_set.first %}
+            {% if first_album and first_album.cover %}
+                <img src="{{ first_album.cover }}" class="profile-icon" alt="{{ artist.name }}">
+            {% else %}
+                <div class="profile-icon fallback-icon"></div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="profile-info">
+            <h1 style="margin: 0;">{{ artist.name }}</h1>
+            <p style="color: #888;">artist</p>
+        </div>
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 30px;">
+
+    <h3>Albums by {{ artist.name }}</h3>
+    
+    {% include 'testpages/partials/album_grid.html' with albums=artist.album_set.all %}
+</div>
+{% endblock %}

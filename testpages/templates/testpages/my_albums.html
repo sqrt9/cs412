@@ -2,5 +2,6 @@
 {% block content %}
 {% for album in albums %}
     {% include 'testpages/partials/album_display.html' with album=album %}
+    <br>
 {% endfor %}
 {% endblock %}

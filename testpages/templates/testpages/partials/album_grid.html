@@ -1,0 +1,22 @@
+<div class="grid-container">
+    <div class="album-grid">
+        {% for album in albums %}
+            <a href="{% url 'my_album' pk=album.pk %}" class="album-card">
+                {% if album.cover %}
+                    <img src="{{ album.cover }}" alt="{{ album.name }} Cover">
+                {% else %}
+                    <div class="fallback-cover" style="width: 100%; aspect-ratio: 1/1; border-radius: 12px; margin-bottom: 15px;"></div>
+                {% endif %}
+                
+                <h3>{{ album.name }}</h3>
+                {% if album.artist %}
+                    <p>{{ album.artist.name }}</p>
+                {% endif %}
+            </a>
+        {% empty %}
+            <p style="grid-column: 1 / -1; color: #888; text-align: center; padding: 40px 0;">
+                no public albums available right now
+            </p>
+        {% endfor %}
+    </div>
+</div>
