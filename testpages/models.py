@@ -1,3 +1,9 @@
+# models.py
+# Theodore Harlan, hpt@bu.edu
+# django music models: profile, album, artist, track, etc.
+# Created April 20th
+# Modified april 30
+
 from django.db import models
 from django.contrib.auth.models import User
 from mutagen.easyid3 import EasyID3

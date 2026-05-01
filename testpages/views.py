@@ -16,6 +16,13 @@ from django.contrib.auth import login
 from django.urls import reverse
 from django.shortcuts import redirect
 
+# views.py
+# Theodore Harlan
+# created april 20
+# Modified april 30
+# All views for django music web app.
+
+
 
 # Create your views here.
 
@@ -23,6 +30,10 @@ context = {}
 
 
 def base(request : HttpRequest):
+    """
+    Simple root page. Add a context if we're browsing on "/" to show
+    public albums arranged in a grid.
+    """
     context = {}
     if request.user.is_authenticated:
         profile_url = reverse('profile', kwargs={'username': request.user.username})
@@ -37,13 +48,12 @@ def base(request : HttpRequest):
     
     return render(request, template_name="testpages/base.html", context=context)
 
-def grid(request: HttpRequest):
-    return render(request, "testpages/grid.html", context)
-
-def grid_scrollable(request : HttpRequest):
-    return render(request, "testpages/grid_scrollable.html", context)
 
 class CreateAccountView(CreateView):
+    """
+    Create an account on the site. 
+    Use a User and Profile form, as before.
+    """
     model = Profile
     form_class = CreateAccountForm
     template_name="testpages/create_account.html"
@@ -73,6 +83,10 @@ class CreateAccountView(CreateView):
 
 
 class TrackUploadView(LoginRequiredMixin, CreateView):
+    """
+    Use the multiple file upload (exactly from django's docs)
+    to upload multiple files. Then, populate those files.
+    """
     model = Track
     form_class = FileFieldForm
     template_name = "testpages/upload_tracks.html"
@@ -149,6 +163,9 @@ class TrackUploadView(LoginRequiredMixin, CreateView):
 
 
 class UploadedTracksListView(LoginRequiredMixin, ListView):
+    """
+    View for uploaded tracks. Get the updates from the URL.
+    """
     model = Album
     template_name = "testpages/uploaded_tracks.html"
     context_object_name = "albums"
@@ -161,6 +178,9 @@ class UploadedTracksListView(LoginRequiredMixin, ListView):
 
 
 class ProfileAlbumsListView(LoginRequiredMixin, ListView):
+    """
+    Browse all the albums you've uploaded to the site.
+    """
     model = Album
     template_name = "testpages/my_albums.html"
     context_object_name = "albums"
@@ -173,6 +193,9 @@ class ProfileAlbumsListView(LoginRequiredMixin, ListView):
 
 
 class ProfileArtistsListView(LoginRequiredMixin, ListView):
+    """
+    Browse all your artists uploaded to the site
+    """
     model = Artist
     template_name = "testpages/my_artists.html"
     context_object_name = "artists"
@@ -189,12 +212,18 @@ class ProfileArtistsListView(LoginRequiredMixin, ListView):
 
 
 class ProfileSingleAlbumDetailView(LoginRequiredMixin, DetailView):
+    """
+    View for a single album. Uses a single django partial.
+    """
     model = Album
     template_name = "testpages/album.html"
     context_object_name = "album"
 
 
 class ProfileSingleArtistDetailView(LoginRequiredMixin, DetailView):
+    """
+    Display a single artist, with their albums.
+    """
     model = Artist
     template_name = "testpages/artist.html"
     context_object_name = "artist"
@@ -204,6 +233,9 @@ class ProfileSingleArtistDetailView(LoginRequiredMixin, DetailView):
     
 
 class DeleteAlbumView(LoginRequiredMixin, DeleteView):
+    """
+    Delete a single album.
+    """
     model = Album
     template_name = "testpages/delete_album.html"
     context_object_name = "album"
@@ -219,6 +251,9 @@ class DeleteAlbumView(LoginRequiredMixin, DeleteView):
 
 
 class ProfileDetailView(LoginRequiredMixin, DetailView):
+    """
+    Single profile view.
+    """
     model = Profile
     template_name = "testpages/profile.html"
     context_object_name = "profile"
@@ -226,6 +261,9 @@ class ProfileDetailView(LoginRequiredMixin, DetailView):
         return get_object_or_404(Profile, user__username=self.kwargs['username'])
 
 class ProfileUpdateView(LoginRequiredMixin, UpdateView):
+    """
+    Update profile view.
+    """
     model = Profile
     form_class          = UpdateProfileForm
     template_name       = "testpages/update_profile_form.html"
@@ -239,6 +277,10 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
 
 
 def search_view(request):
+    """
+    Build the search results using django's Q, with
+    icontains on album names and artist names.
+    """
     query = request.GET.get('q', '')
     album_results = []
     artist_results = []
@@ -257,3 +299,14 @@ def search_view(request):
         'artist_results': artist_results,
     }
     return render(request, 'testpages/search_results.html', context)
+
+#
+# Unused for dev pages
+# To preview css
+#
+
+def grid(request: HttpRequest):
+    return render(request, "testpages/grid.html", context)
+
+def grid_scrollable(request : HttpRequest):
+    return render(request, "testpages/grid_scrollable.html", context)
