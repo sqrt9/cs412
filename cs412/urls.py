@@ -28,7 +28,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    # path("quotes/", include("quotes.urls")),
+    path("quotes/", include("quotes.urls")),
     # path("restaurant/", include("restaurant.urls")),
     path("testpages/", include("testpages.urls")),
     # path("mini_insta/", include("mini_insta.urls")),
